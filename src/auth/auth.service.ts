@@ -24,7 +24,7 @@ export class AuthService {
       },
     });
     
-    return this.signToken(user.id, user.email, user.role);
+    return this.signTokens(user.id, user.email, user.role);
   }
 
   async deleteacc(body: AuthDto) {
@@ -70,22 +70,23 @@ export class AuthService {
     if (!pwMatches) {
       throw new UnauthorizedException('Invalid credentials');
     }
-    return this.signToken(user.id, user.email, user.role);
+    return this.signTokens(user.id, user.email, user.role);
   }
   
-  async signToken(
+  async signTokens(
     userId: number,
     email: string,
     role: string,
-  ): Promise<{ access_token: string }> {
+  ): Promise<{ access_token: string , refresh_token: string }> {
     const payload = {
       sub: userId,
       email,
       role,
     };
     const secret = this.config.get('JWT_SECRET');
+    const secretRefresh = this.config.get('JWT_SECRET_REFRESH');
 
-    const token = await this.jwt.signAsync(
+    const accessToken = await this.jwt.signAsync(
       payload,
       {
         expiresIn: '15m',
@@ -93,9 +94,42 @@ export class AuthService {
       },
     );
 
+    const refreshToken = await this.jwt.signAsync(
+      payload,
+      {
+        expiresIn: '7d',
+        secret: secretRefresh,
+      },
+    );
+
     return {
-      access_token: token,
+      access_token: accessToken,
+      refresh_token: refreshToken, 
     };
   }
-  }
+  async refreshTokens(
+    userId: number,
+    email: string,
+    role: string,
+  ): Promise<{ access_token: string}> {
+    const payload = {
+      sub: userId,
+      email,
+      role,
+    };
+    const secret = this.config.get('JWT_SECRET');
+    const accessToken = await this.jwt.signAsync(
+      payload,
+      {
+        expiresIn: '15m',
+        secret: secret,
+      },
+    );
 
+    
+
+    return {
+      access_token: accessToken,
+    };
+  }
+}
