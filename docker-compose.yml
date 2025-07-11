@@ -1,0 +1,15 @@
+services:
+  xerostomia_db:
+    image: postgres:13
+    container_name: postgres-xerostomia-db
+    ports:
+      - "5434:5432"
+    environment:
+      POSTGRES_USER: postgresX
+      POSTGRES_PASSWORD: 1234
+      POSTGRES_DB: xero_db
+    networks:
+      - xerostomia
+
+networks:
+  xerostomia:
