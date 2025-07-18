@@ -21,3 +21,24 @@ model User {
   updatedAt DateTime @updatedAt
   role     String   @default("USER")
 }
+
+model Report {
+  id        Int      @id @default(autoincrement())
+  firstName String
+  lastName  String
+  email     String
+  createdAt DateTime @default(now())
+  age      Int
+  gender   String
+  tongue  String
+  tonguePercentage Int
+  teeth   String
+  teethPercentage Int
+  saliva  String
+  salivaPercentage Int
+  painSolid  String
+  painLiquid String
+  painMixed String
+  painPercentage Int
+
+}

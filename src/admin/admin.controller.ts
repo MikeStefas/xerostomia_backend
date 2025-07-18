@@ -11,15 +11,10 @@ export class AdminController {
     @UseGuards(AdminJwtGuard)
     @Get("db")
     async getDb(@Request() req) {
-        this.getUserRole(req);
         return await this.prisma.user.findMany();;
     }
     
 
-    getUserRole(req: { user: { role: string } }) {
-        if (req.user.role !== 'ADMIN') {
-            throw new Error('Unauthorized access');
-        }
-        return req.user?.role;
+
     }
-}
+
