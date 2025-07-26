@@ -33,7 +33,7 @@ export class RefreshStrategy extends PassportStrategy(
   }) {
     const user = await this.prisma.user.findUnique({
       where: {
-        id: payload.sub,
+        userID: payload.sub,
       },
     });
 

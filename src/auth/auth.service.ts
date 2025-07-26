@@ -1,10 +1,11 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { AuthDto } from './authdto';
+import { SignInDto, SignUpDto } from './authdto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import * as argon2 from 'argon2';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { use } from 'passport';
+import { Sign } from 'crypto';
 
 @Injectable()
 export class AuthService {
@@ -14,20 +15,22 @@ export class AuthService {
     private config: ConfigService,
   ) {}
 
-  async signup(body: AuthDto) {
+  async signup(body: SignUpDto) {
     const hashedPassword = await argon2.hash(body.password);
     const user =  await this.prisma.user.create({
       data: {
         email: body.email,
         password: hashedPassword,
+        firstName: body.firstName,
+        lastName: body.lastName,
         role: "USER",
       },
     });
     
-    return this.signTokens(user.id, user.email, user.role);
+    return this.signTokens(user.userID, user.email, user.role);
   }
 
-  async deleteacc(body: AuthDto) {
+  async deleteacc(body: SignInDto) {
     const user =
       await this.prisma.user.findUnique({
         where: {
@@ -52,7 +55,7 @@ export class AuthService {
   });
   }
 
-  async signin(body: AuthDto) {
+  async signin(body: SignInDto) {
     // find the user by email
     const user =
       await this.prisma.user.findUnique({
@@ -70,7 +73,7 @@ export class AuthService {
     if (!pwMatches) {
       throw new UnauthorizedException('Invalid credentials');
     }
-    return this.signTokens(user.id, user.email, user.role);
+    return this.signTokens(user.userID, user.email, user.role);
   }
   
   async signTokens(

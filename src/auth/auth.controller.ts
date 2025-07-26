@@ -1,6 +1,6 @@
 import { Body, Controller, Delete, Get, Param, Post, Request, UseGuards, UsePipes, ValidationPipe } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { AuthDto } from './authdto';
+import { SignInDto, SignUpDto } from './authdto';
 import { RefreshGuard } from './guard/refresh.guard';
 
 
@@ -12,19 +12,19 @@ export class AuthController {
 
     @Post('signup')
     @UsePipes(new ValidationPipe({whitelist:true}))
-    signup(@Body() body: AuthDto){
+    signup(@Body() body: SignUpDto){
         return this.authService.signup(body);
     }
 
     @Delete('deleteacc')
     @UsePipes(new ValidationPipe({whitelist:true}))
-    deleteacc(@Body() body: AuthDto){
+    deleteacc(@Body() body: SignInDto){
         return this.authService.deleteacc(body);
     }
 
-    @Get('signin')
+    @Post('signin')
     @UsePipes(new ValidationPipe({whitelist:true}))
-    signin(@Body() body: AuthDto){
+    signin(@Body() body: SignInDto){
         return this.authService.signin(body);
     }
 

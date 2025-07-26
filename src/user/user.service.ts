@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { first } from 'rxjs';
 import { reportDto } from './report.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { UserDataDto } from './userdata.dto';
 
 @Injectable()
 export class UserService {
@@ -20,12 +20,8 @@ export class UserService {
     async uploadReport(user: any,body: reportDto) {
      await this.prisma.report.create({
             data: {
-           
-            firstName: body.firstName,
-            lastName: body.lastName,
+            userID: user.userID,
             email: user.email,
-            age : body.age,
-            gender : body.gender,
             tongue : body.tongue,
             tonguePercentage : body.tonguePercentage,
             teeth : body.teeth,
@@ -39,4 +35,13 @@ export class UserService {
         }        
     })
 }
+    async uploadUserData(user: any,body: UserDataDto) {
+        await this.prisma.userData.create({
+            data: {
+            userID: user.userID,
+            yearOfBirth : body.yearOfBirth,
+            gender : body.gender,
+        }        
+    })
+    }
 }

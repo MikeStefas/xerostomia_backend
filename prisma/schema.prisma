@@ -14,22 +14,22 @@ datasource db {
 }
 
 model User {
-  id        Int      @id @default(autoincrement())
+  userID        Int      @id @default(autoincrement())
   email     String   @unique
+  firstName String   @default("-")
+  lastName String @default("-")
   password  String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   role     String   @default("USER")
+  institution String @default("-")
 }
 
 model Report {
   id        Int      @id @default(autoincrement())
-  firstName String
-  lastName  String
+  userID    Int 
   email     String
   createdAt DateTime @default(now())
-  age      Int
-  gender   String
   tongue  String
   tonguePercentage Int
   teeth   String
@@ -41,4 +41,17 @@ model Report {
   painMixed String
   painPercentage Int
 
+}
+
+model Supervisors {
+  id          Int      @id @default(autoincrement())
+  clinicianID Int      
+  userID      Int
+}
+
+model UserData {
+  id Int @id @default(autoincrement())
+  userID Int
+  yearOfBirth Int
+  gender String
 }

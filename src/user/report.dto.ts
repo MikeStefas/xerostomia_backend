@@ -1,17 +1,6 @@
 import { IsString, IsInt } from 'class-validator';
 
 export class reportDto {
-  @IsString()
-  firstName: string;
-
-  @IsString()
-  lastName: string;
-
-  @IsInt()
-  age: number;
-
-  @IsString()
-  gender: string;
 
   @IsString()
   tongue: string;

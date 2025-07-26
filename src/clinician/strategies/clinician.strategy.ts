@@ -5,9 +5,9 @@ import { ExtractJwt, Strategy } from "passport-jwt";
 import { PrismaService } from "src/prisma/prisma.service";
 
 @Injectable()
-export class AdminJwtStrategy extends PassportStrategy(
+export class ClinicianJwtStrategy extends PassportStrategy(
   Strategy,
-  'admin-jwt', 
+  'clinician-jwt', 
 ) {
   constructor(
     config: ConfigService,
@@ -37,8 +37,8 @@ export class AdminJwtStrategy extends PassportStrategy(
     if (!user) {
       throw new UnauthorizedException('User doesnt exist');
     }
-    if (user.role !== 'ADMIN') {
-        throw new UnauthorizedException('Unauthorized: User is not an admin');
+    if (user.role !== 'CLINICIAN') {
+        throw new UnauthorizedException('Unauthorized: User is not a clinician');
         }
     user.password = '';
     return user;

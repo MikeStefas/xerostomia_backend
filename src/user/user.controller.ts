@@ -2,16 +2,25 @@ import { Body, Controller, Get, Post, Request, UseGuards, UsePipes, ValidationPi
 import { JwtGuard } from 'src/auth/guard';
 import { UserService } from './user.service';
 import { reportDto } from './report.dto';
+import { UserDataDto } from './userdata.dto';
 
 @Controller('user')
 export class UserController {
     constructor(private userService: UserService) {}
 
   @UseGuards(JwtGuard)
-  @Get('profile')
+  @Post('profile')
   getProfile(@Request() req) {
     return this.userService.getProfile(req.user);
   }
+
+  @UseGuards(JwtGuard)
+  @UsePipes(new ValidationPipe({whitelist: true}))
+  @Post('upload-user-data')
+  uploadUserData(@Request() req, @Body() body : UserDataDto) {
+    return this.userService.uploadUserData(req.user,body );
+  }
+
   
   @UseGuards(JwtGuard)
   @UsePipes(new ValidationPipe({ whitelist: true }))
