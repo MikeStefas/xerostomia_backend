@@ -8,11 +8,7 @@ import { UserDataDto } from './userdata.dto';
 export class UserController {
     constructor(private userService: UserService) {}
 
-  @UseGuards(JwtGuard)
-  @Post('profile')
-  getProfile(@Request() req) {
-    return this.userService.getProfile(req.user);
-  }
+
 
   @UseGuards(JwtGuard)
   @UsePipes(new ValidationPipe({whitelist: true}))

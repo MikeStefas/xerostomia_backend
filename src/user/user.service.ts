@@ -6,16 +6,7 @@ import { UserDataDto } from './userdata.dto';
 @Injectable()
 export class UserService {
     constructor(private prisma: PrismaService) {}
-    getProfile(user: any) {
-        return {
-        id: user.id,
-        email: user.email,
-        name: user.name,
-        createdAt: user.createdAt,
-        updatedAt: user.updatedAt,
-        role: user.role,
-        
-        };}
+    
 
     async uploadReport(user: any,body: reportDto) {
      await this.prisma.report.create({
