@@ -21,13 +21,7 @@ export class reportDto {
   salivaPercentage: number;
 
   @IsString()
-  painSolid: string;
-
-  @IsString()
-  painLiquid: string;
-
-  @IsString()
-  painMixed: string;
+  pain: string;
 
   @IsInt()
   painPercentage: number;

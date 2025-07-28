@@ -28,9 +28,7 @@ export class UserService {
             teethPercentage : body.teethPercentage,
             saliva : body.saliva,
             salivaPercentage : body.salivaPercentage,
-            painSolid : body.painSolid,
-            painLiquid : body.painLiquid,
-            painMixed : body.painMixed,
+            pain : body.pain,
             painPercentage : body.painPercentage,
         }        
     })
@@ -43,5 +41,14 @@ export class UserService {
             gender : body.gender,
         }        
     })
+    }
+
+    async getReports(user:any) {
+        const reports = await this.prisma.report.findMany(
+            {
+                where: {userID : user.userID}
+            }
+        )
+        return reports;
     }
 }

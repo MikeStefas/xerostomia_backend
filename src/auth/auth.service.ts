@@ -17,7 +17,7 @@ export class AuthService {
 
   async signup(body: SignUpDto) {
     const hashedPassword = await argon2.hash(body.password);
-    const user =  await this.prisma.user.create({
+    await this.prisma.user.create({
       data: {
         email: body.email,
         password: hashedPassword,
@@ -27,7 +27,7 @@ export class AuthService {
       },
     });
     
-    return this.signTokens(user.userID, user.email, user.role);
+    return {signup : "successful"};
   }
 
   async deleteacc(body: SignInDto) {

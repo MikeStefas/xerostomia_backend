@@ -28,4 +28,10 @@ export class UserController {
   uploadReport(@Request() req, @Body() body : reportDto) {
     return this.userService.uploadReport(req.user,body );
   }
+
+  @UseGuards(JwtGuard)
+  @Get('get-reports')
+  getReports(@Request() req) {
+    return this.userService.getReports(req.user);
+  }
 }

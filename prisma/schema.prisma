@@ -36,9 +36,7 @@ model Report {
   teethPercentage Int
   saliva  String
   salivaPercentage Int
-  painSolid  String
-  painLiquid String
-  painMixed String
+  pain  String @default("-")
   painPercentage Int
 
 }

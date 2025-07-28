@@ -27,4 +27,11 @@ export class ClinicianController {
         const userID = body.userID;
         return this.clinicianService.viewUserData(userID);
     }
+
+    @Post("view-user-reports")
+    @UseGuards(ClinicianJwtGuard)
+    viewUserReports(@Request() req: any, @Body() body: { userID: number }) {
+        const userID = body.userID;
+        return this.clinicianService.viewUserReports(userID);
+    } 
 }

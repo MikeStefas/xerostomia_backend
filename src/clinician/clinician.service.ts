@@ -33,9 +33,7 @@ export class ClinicianService {
                     teethPercentage: true,
                     saliva: true,
                     salivaPercentage: true,
-                    painSolid: true,
-                    painLiquid: true,
-                    painMixed: true,
+                    pain: true,
                     painPercentage: true,
                     createdAt: true,    
                 }
@@ -78,5 +76,10 @@ export class ClinicianService {
         return data;
 
         
+    }
+
+    async viewUserReports(userID){
+        let reports = await this.prisma.report.findMany({where: {userID: userID}});
+        return reports;
     }
 }
