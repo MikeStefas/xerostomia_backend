@@ -62,7 +62,9 @@ export class ClinicianService {
                 },
                 select: {
                     userID: true,
-                    email: true,  
+                    email: true,
+                    firstName: true,
+                    lastName: true,  
                         }
             });
 
