@@ -14,7 +14,7 @@ datasource db {
 }
 
 model User {
-  userID        Int      @id @default(autoincrement())
+  userID        Int      @id @default(autoincrement()) @unique
   email     String   @unique
   firstName String   @default("-")
   lastName String @default("-")
@@ -41,15 +41,15 @@ model Report {
 
 }
 
-model Supervisors {
+model Pairs {
   id          Int      @id @default(autoincrement())
   clinicianID Int      
   userID      Int
 }
 
-model UserData {
+model DemographicData {
   id Int @id @default(autoincrement())
-  userID Int
+  userID Int @unique
   yearOfBirth Int
   gender String
 }

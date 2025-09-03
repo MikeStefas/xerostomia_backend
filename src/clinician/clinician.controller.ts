@@ -1,7 +1,6 @@
 import { Body, Controller, Get, Post, Request, UseGuards } from '@nestjs/common';
 import { ClinicianJwtGuard } from './guard';
 import { ClinicianService } from './clinician.service';
-import { use } from 'passport';
 
 @Controller('clinician')
 export class ClinicianController {
@@ -14,11 +13,11 @@ export class ClinicianController {
         return this.clinicianService.viewReports(req);
     }
 
-    @Get("view-patients")
+    @Get("view-users")
     @UseGuards(ClinicianJwtGuard)
-    viewPatients(@Request() req: any) {
+    viewUsers(@Request() req: any) {
 
-        return this.clinicianService.viewPatients(req);
+        return this.clinicianService.viewUsers(req);
     }
 
     @Post("view-user-data")

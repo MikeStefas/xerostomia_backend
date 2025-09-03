@@ -9,7 +9,7 @@ export class ClinicianService {
 
     async viewReports(req) {
         const clinicianID = req.user.userID;
-        const patients = await this.prisma.supervisors.findMany({
+        const patients = await this.prisma.pairs.findMany({
             where: {
                 clinicianID: clinicianID
             },
@@ -43,9 +43,10 @@ export class ClinicianService {
         return allReports;
     }
 
-    async viewPatients(req) {
+    async viewUsers(req) {
+        console.log(req.user);
         const clinicianID = req.user.userID;
-        const patients = await this.prisma.supervisors.findMany({
+        const patients = await this.prisma.pairs.findMany({
             where: {
                 clinicianID: clinicianID
             },
@@ -74,7 +75,7 @@ export class ClinicianService {
     }
 
     async viewUserData(userID) {
-        let data = await this.prisma.userData.findFirst({where: {userID: userID}});
+        let data = await this.prisma.demographicData.findFirst({where: {userID: userID}});
         return data;
 
         

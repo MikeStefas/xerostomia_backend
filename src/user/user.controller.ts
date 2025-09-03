@@ -17,6 +17,11 @@ export class UserController {
     return this.userService.uploadUserData(req.user,body );
   }
 
+  @UseGuards(JwtGuard)
+  @Get('get-user-data')
+  getUserData(@Request() req) {
+    return this.userService.getUserData(req.user);
+  }
   
   @UseGuards(JwtGuard)
   @UsePipes(new ValidationPipe({ whitelist: true }))
@@ -30,4 +35,11 @@ export class UserController {
   getReports(@Request() req) {
     return this.userService.getReports(req.user);
   }
+
+  @UseGuards(JwtGuard)
+  @Get('get-role')
+  getRole(@Request() req) {
+    return this.userService.getRole(req.user);
+  }
+
 }
