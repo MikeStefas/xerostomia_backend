@@ -1,36 +1,16 @@
 import { Body, Controller, Get, Post, Request, UseGuards } from '@nestjs/common';
-import { ClinicianJwtGuard } from './guard';
 import { ClinicianService } from './clinician.service';
+import { JwtGuard } from 'src/auth/guard';
 
 @Controller('clinician')
 export class ClinicianController {
     constructor(private clinicianService: ClinicianService) {}
 
-    @Get("view-reports")
-    @UseGuards(ClinicianJwtGuard)
-    viewReports(@Request() req: any) {
-
-        return this.clinicianService.viewReports(req);
+    @Post("pair-clinician")
+    @UseGuards(JwtGuard)
+    pairClinician(@Request() req,@Body() body: { clinicianID: number, patientID: number }) {
+        const clinicianID = body.clinicianID;
+        const patientID = body.patientID;
+        return this.clinicianService.pairClinician(req, clinicianID, patientID);
     }
-
-    @Get("view-users")
-    @UseGuards(ClinicianJwtGuard)
-    viewUsers(@Request() req: any) {
-
-        return this.clinicianService.viewUsers(req);
-    }
-
-    @Post("view-user-data")
-    @UseGuards(ClinicianJwtGuard)
-    viewUserData(@Request() req: any, @Body() body: { userID: number }) {
-        const userID = body.userID;
-        return this.clinicianService.viewUserData(userID);
-    }
-
-    @Post("view-user-reports")
-    @UseGuards(ClinicianJwtGuard)
-    viewUserReports(@Request() req: any, @Body() body: { userID: number }) {
-        const userID = body.userID;
-        return this.clinicianService.viewUserReports(userID);
-    } 
 }

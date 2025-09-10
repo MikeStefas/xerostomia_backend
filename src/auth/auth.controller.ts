@@ -2,6 +2,7 @@ import { Body, Controller, Delete, Get, Param, Post, Request, UseGuards, UsePipe
 import { AuthService } from './auth.service';
 import { SignInDto, SignUpDto } from './authdto';
 import { RefreshGuard } from './guard/refresh.guard';
+import { AdminJwtGuard } from 'src/auth/guard/admin.guard';
 
 
 
@@ -9,18 +10,13 @@ import { RefreshGuard } from './guard/refresh.guard';
 export class AuthController {
     constructor(private authService: AuthService) {} //create an instance of AuthController
 
-
-    @Post('signup')
+    @UseGuards(AdminJwtGuard)
+    @Post('create-user')
     @UsePipes(new ValidationPipe({whitelist:true}))
-    signup(@Body() body: SignUpDto){
-        return this.authService.signup(body);
+    createUser(@Body() body: SignUpDto){
+        return this.authService.createUser(body);
     }
 
-    @Delete('deleteacc')
-    @UsePipes(new ValidationPipe({whitelist:true}))
-    deleteacc(@Body() body: SignInDto){
-        return this.authService.deleteacc(body);
-    }
 
     @Post('signin')
     @UsePipes(new ValidationPipe({whitelist:true}))
@@ -28,11 +24,13 @@ export class AuthController {
         return this.authService.signin(body);
     }
 
-    @Post('refresh')
+    @UseGuards(RefreshGuard)
+    @Get('refresh')
     @UseGuards(RefreshGuard)
     @UsePipes(new ValidationPipe({whitelist:true}))
     refreshTokens(@Request() req) {
-        return this.authService.refreshTokens(req.user.id, req.user.email, req.user.role);
+        console.log(req);
+        return this.authService.refreshTokens(req.user.userID, req.user.email, req.user.role);
     }
 
 

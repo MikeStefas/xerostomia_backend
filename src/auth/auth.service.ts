@@ -15,45 +15,30 @@ export class AuthService {
     private config: ConfigService,
   ) {}
 
-  async signup(body: SignUpDto) {
-    const hashedPassword = await argon2.hash(body.password);
-    await this.prisma.user.create({
-      data: {
-        email: body.email,
-        password: hashedPassword,
-        firstName: body.firstName,
-        lastName: body.lastName,
-        role: "USER",
-      },
-    });
-    
-    return {signup : "successful"};
-  }
+  async createUser(body: SignUpDto) {
+          const hashedPassword = await argon2.hash(body.password);
+          
+          if(await this.prisma.user.findUnique({where: {email: body.email}}) != null) {
+              return {message: "User already exists"};
+          }
+          try{
+          await this.prisma.user.create({
+            data: {
+              email: body.email,
+              password: hashedPassword,
+              firstName: body.firstName,
+              lastName: body.lastName,
+              role: "USER",
+            },
+          });
+          
+          return {message : "successful"};
+        }
+        catch(error){
+          return {message: error };
+        }
+      }
 
-  async deleteacc(body: SignInDto) {
-    const user =
-      await this.prisma.user.findUnique({
-        where: {
-          email: body.email,
-        },
-      });
-    if (!user) {
-      throw new UnauthorizedException('User not found');
-    }
-    const pwMatches = await argon2.verify(
-      user.password, //hashed password from the database
-      body.password,
-    );
-    if (!pwMatches) {
-      throw new UnauthorizedException('Invalid credentials');
-    }
-
-    return await this.prisma.user.delete({
-    where: {
-    email: body.email,
-    },
-  });
-  }
 
   async signin(body: SignInDto) {
     // find the user by email
@@ -92,7 +77,7 @@ export class AuthService {
     const accessToken = await this.jwt.signAsync(
       payload,
       {
-        expiresIn: '15m',
+        expiresIn: '1m',
         secret: secret,
       },
     );
@@ -120,6 +105,7 @@ export class AuthService {
       email,
       role,
     };
+
     const secret = this.config.get('JWT_SECRET');
     const accessToken = await this.jwt.signAsync(
       payload,

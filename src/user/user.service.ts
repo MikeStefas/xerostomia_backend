@@ -1,63 +1,78 @@
 import { Injectable } from '@nestjs/common';
 import { reportDto } from './report.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { UserDataDto } from './userdata.dto';
+import * as argon2 from 'argon2';
 
 @Injectable()
 export class UserService {
     constructor(private prisma: PrismaService) {}
     
 
-    async uploadReport(user: any,body: reportDto) {
-     await this.prisma.report.create({
-            data: {
-            userID: user.userID,
-            email: user.email,
-            tongue : body.tongue,
-            tonguePercentage : body.tonguePercentage,
-            teeth : body.teeth,
-            teethPercentage : body.teethPercentage,
-            saliva : body.saliva,
-            salivaPercentage : body.salivaPercentage,
-            pain : body.pain,
-            painPercentage : body.painPercentage,
-        }        
-    })
-}
-    async uploadUserData(user: any,body: UserDataDto) {
-        await this.prisma.demographicData.create({
-            data: {
-            userID: user.userID,
-            yearOfBirth : body.yearOfBirth,
-            gender : body.gender,
-        }        
-    })
+    
+    async updateUserData(req,body) 
+    {   
+        try{
+            const role = req.user.role;
+            if(role !== "ADMIN") {
+                return {message: "You do not have permission for this action"};
+            }
+            const user = await this.prisma.user.findUnique({where: {userID: body.userID}});
+            if(user === null) {
+                return {message: "User does not exist"};
+            }
+            const hashedPassword = await argon2.hash(body.password);
+            await this.prisma.user.update({
+                where: {
+                    userID: body.userID
+                },
+                data: {
+                    firstName: body.firstName,
+                    lastName: body.lastName,
+                    password: hashedPassword,
+                    role: body.role,
+                    institution: body.institution
+                }
+            })
+            return {message: "User updated successfully"};
+        }
+        catch(error){
+            return ({message: "${error}"});
+        }
     }
 
-    async getUserData(user:any) {
-        const data = await this.prisma.demographicData.findFirst(
-            {
-                where: {userID : user.userID}
-            }
-        )
-        return data;
-    }
+    async viewUsers(req,body) {
+        const role = req.user.role;
+        const chooseRole = body.chooseRole || null;
+        const clinicianID = body.ofClinicianID || null;
 
-    async getReports(user:any) {
-        const reports = await this.prisma.report.findMany(
+        try{
+            //view all users based on role (or any)
+            if(role === "ADMIN" && chooseRole !== null && clinicianID === null)
             {
-                where: {userID : user.userID}
+                if(chooseRole === "ANY"){
+                    return this.prisma.user.findMany({where:{role: {in: ["USER","CLINICIAN"]}}});
+                }
+                else{
+                    return this.prisma.user.findMany({where: {role: chooseRole}});
+                }
             }
-        )
-        return reports;
-    }
+            //View usrers of a specific clinician
+            else if(role === "ADMIN" && chooseRole === null && clinicianID !== null)
+            {
+                return this.prisma.pairs.findMany({where: {clinicianID: clinicianID}});
+            }
 
-    async getRole(user:any) {
-        const result = await this.prisma.user.findFirst(
+            else if(role === "CLINICIAN")
             {
-                where: {userID : user.userID}
+                return this.prisma.pairs.findMany({where: {clinicianID: req.user.userID}});
             }
-        )
-        return {role : result?.role};
+            else
+            {
+                return {message: "You do not have permission for this action"};
+            }
+        }
+        catch(error){
+            return ({message: "${error}"});
+        }
     }
 }
