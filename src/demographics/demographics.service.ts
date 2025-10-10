@@ -8,9 +8,7 @@ export class DemographicsService {
 
     async createDemographicData(req, body) {
     const role = req.user.role;
-    if (body.gender !== "male" && body.gender !== "female" || body.yearOfBirth < 1900 || body.yearOfBirth > 2025) {
-            return { message: "Invalid Demographic Data" };
-        }
+    
     try {
         if (role === "ADMIN") {
             try {
@@ -21,7 +19,7 @@ export class DemographicsService {
                         gender: body.gender
                     }
                 });
-                return { message: "success" };
+                return { message: "Success" };
             } catch (error) {
                 if (error.code === "P2002") {
                     return { message: "Demographics already exist" };
@@ -39,7 +37,7 @@ export class DemographicsService {
                         gender: body.gender
                     }
                 });
-                return { message: "success" };
+                return { message: "Success" };
             } catch (error) {
                 if (error.code === "P2002") {
                     return { message: "Demographics already exist" };
@@ -57,9 +55,7 @@ export class DemographicsService {
 
     async updateDemographicData(req, body) {
         const role = req.user.role;
-        if (body.gender !== "male" && body.gender !== "female" || body.yearOfBirth < 1900 || body.yearOfBirth > 2025) {
-            return { message: "Invalid Demographic Data" };
-        }
+        
         try {
             if (role === "ADMIN") {
                 try {
@@ -70,7 +66,7 @@ export class DemographicsService {
                             gender: body.gender
                         }
                     });
-                    return { message: "success" };
+                    return { message: "Success" };
                 } catch (error) {
                     if (error.code === "P2005") {
                         return { message: "Demographics do not exist" };
@@ -88,7 +84,7 @@ export class DemographicsService {
                             gender: body.gender
                         }
                     });
-                    return { message: "success" };
+                    return { message: "Success" };
                 } catch (error) {
                     if (error.code === "P2005") {
                         return { message: "Demographics do not exist" };

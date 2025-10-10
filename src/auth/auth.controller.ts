@@ -1,8 +1,8 @@
 import { Body, Controller, Delete, Get, Param, Post, Request, UseGuards, UsePipes, ValidationPipe } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { SignInDto, SignUpDto } from './authdto';
-import { RefreshGuard } from './guard/refresh.guard';
-import { AdminJwtGuard } from 'src/auth/guard/admin.guard';
+import { RefreshGuard } from '../../guard/refresh.guard';
+import { AdminJwtGuard } from 'guard/admin.guard';
 
 
 
