@@ -1,8 +1,7 @@
 import { IsInt, IsNotEmpty, IsString, Min, Max, IsIn } from 'class-validator';
 
 export class DemographicsDto {
-    @IsInt()
-    @IsNotEmpty()
+
     userID: number;
 
     @IsInt()
