@@ -5,7 +5,6 @@ import * as argon2 from 'argon2';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 
-
 @Injectable()
 export class AuthService {
   constructor(
@@ -15,38 +14,39 @@ export class AuthService {
   ) {}
 
   async createUser(body: SignUpDto) {
-          const hashedPassword = await argon2.hash(body.password);
-          
-          if(await this.prisma.user.findUnique({where: {email: body.email}}) != null) {
-              return {message: "User already exists"};
-          }
-          try{
-          await this.prisma.user.create({
-            data: {
-              email: body.email,
-              password: hashedPassword,
-              firstName: body.firstName,
-              lastName: body.lastName,
-              role: "USER",
-            },
-          });
-          
-          return {message : "successful"};
-        }
-        catch(error){
-          return {message: error };
-        }
-      }
+    const hashedPassword = await argon2.hash(body.password);
 
+    if (
+      (await this.prisma.user.findUnique({ where: { email: body.email } })) !=
+      null
+    ) {
+      return { message: 'User already exists' };
+    }
+    try {
+      await this.prisma.user.create({
+        data: {
+          email: body.email,
+          password: hashedPassword,
+          firstName: body.firstName,
+          lastName: body.lastName,
+          role: body.role,
+          institution: body.institution,
+        },
+      });
+
+      return { message: 'successful' };
+    } catch (error) {
+      return { message: error };
+    }
+  }
 
   async signin(body: SignInDto) {
     // find the user by email
-    const user =
-      await this.prisma.user.findUnique({
-        where: {
-          email: body.email,
-        },
-      });
+    const user = await this.prisma.user.findUnique({
+      where: {
+        email: body.email,
+      },
+    });
     if (!user) {
       throw new UnauthorizedException('User not found');
     }
@@ -59,12 +59,12 @@ export class AuthService {
     }
     return this.signTokens(user.userID, user.email, user.role);
   }
-  
+
   async signTokens(
     userId: number,
     email: string,
     role: string,
-  ): Promise<{ access_token: string , refresh_token: string }> {
+  ): Promise<{ access_token: string; refresh_token: string }> {
     const payload = {
       sub: userId,
       email,
@@ -73,32 +73,26 @@ export class AuthService {
     const secret = this.config.get('JWT_SECRET');
     const secretRefresh = this.config.get('JWT_SECRET_REFRESH');
 
-    const accessToken = await this.jwt.signAsync(
-      payload,
-      {
-        expiresIn: '1m',
-        secret: secret,
-      },
-    );
+    const accessToken = await this.jwt.signAsync(payload, {
+      expiresIn: '1m',
+      secret: secret,
+    });
 
-    const refreshToken = await this.jwt.signAsync(
-      payload,
-      {
-        expiresIn: '7d',
-        secret: secretRefresh,
-      },
-    );
+    const refreshToken = await this.jwt.signAsync(payload, {
+      expiresIn: '7d',
+      secret: secretRefresh,
+    });
 
     return {
       access_token: accessToken,
-      refresh_token: refreshToken, 
+      refresh_token: refreshToken,
     };
   }
   async refreshTokens(
     userId: number,
     email: string,
     role: string,
-  ): Promise<{ access_token: string}> {
+  ): Promise<{ access_token: string }> {
     const payload = {
       sub: userId,
       email,
@@ -106,15 +100,10 @@ export class AuthService {
     };
 
     const secret = this.config.get('JWT_SECRET');
-    const accessToken = await this.jwt.signAsync(
-      payload,
-      {
-        expiresIn: '15m',
-        secret: secret,
-      },
-    );
-
-    
+    const accessToken = await this.jwt.signAsync(payload, {
+      expiresIn: '15m',
+      secret: secret,
+    });
 
     return {
       access_token: accessToken,
