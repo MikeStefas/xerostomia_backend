@@ -10,6 +10,24 @@ export class ClinicianService {
       return { message: 'Unauthorized' };
     }
     try {
+      // check if the clinician exists
+      const clinician = await this.prisma.user.findUnique({
+        where: { userID: clinicianID },
+      });
+
+      if (!clinician || clinician.role !== 'CLINICIAN') {
+        return { message: 'Clinician does not exist' };
+      }
+
+      // check if the patient exists
+      const patient = await this.prisma.user.findUnique({
+        where: { userID: patientID },
+      });
+
+      if (!patient || patient.role !== 'USER') {
+        return { message: 'Patient does not exist' };
+      }
+
       // check if the pair already exists
       const existingPair = await this.prisma.pairs.findFirst({
         where: {

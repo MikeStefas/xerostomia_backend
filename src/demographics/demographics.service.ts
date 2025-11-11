@@ -10,7 +10,14 @@ export class DemographicsService {
 
     try {
       if (role === 'ADMIN') {
-        console.log(body);
+        //check if user is a patient
+        const user = await this.prisma.user.findUnique({
+          where: { userID: body.userID },
+        });
+        if (!user || user.role !== 'USER') {
+          return { message: 'user is not a Clinician' };
+        }
+
         try {
           await this.prisma.demographicData.create({
             data: {
