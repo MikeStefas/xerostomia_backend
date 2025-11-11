@@ -115,7 +115,7 @@ export class DemographicsService {
         const pair = await this.prisma.pairs.findFirst({
           where: {
             clinicianID: clinicianID,
-            userID: patientID,
+            patientID: patientID,
           },
         });
         console.log(pair);

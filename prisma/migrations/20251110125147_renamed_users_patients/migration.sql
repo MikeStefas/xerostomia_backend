@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "Pairs" ALTER COLUMN "patientID" DROP DEFAULT;

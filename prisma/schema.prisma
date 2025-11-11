@@ -23,12 +23,16 @@ model User {
   updatedAt DateTime @updatedAt
   role     String   @default("USER")
   institution String @default("-")
+
+  demographicData DemographicData?
+  reports Report[]
+  clinicianPairs  Pairs[] @relation("ClinicianPairs")
+  patientPairs       Pairs[] @relation("PatientPairs")
 }
 
 model Report {
-  id        Int      @id @default(autoincrement())
+  reportId        Int      @id @default(autoincrement())
   userID    Int 
-  email     String
   createdAt DateTime @default(now())
   tongue  String
   tonguePercentage Int
@@ -39,17 +43,23 @@ model Report {
   pain  String @default("-")
   painPercentage Int
 
+  user User @relation(fields: [userID], references: [userID])
 }
 
 model Pairs {
-  id          Int      @id @default(autoincrement())
-  clinicianID Int      
-  userID      Int
+  pairId          Int      @id @default(autoincrement())
+  clinicianID Int       
+  patientID      Int 
+
+  clinician   User @relation("ClinicianPairs", fields: [clinicianID], references: [userID])
+  patient        User @relation("PatientPairs", fields: [patientID], references: [userID])
 }
 
 model DemographicData {
-  id Int @id @default(autoincrement())
+  demgraphicDataId Int @id @default(autoincrement())
   userID Int @unique
   yearOfBirth Int
   gender String
+
+  user User @relation(fields: [userID], references: [userID])
 }

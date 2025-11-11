@@ -36,7 +36,10 @@ export class DemographicsController {
   @Post('view-demographic-data')
   @UseGuards(JwtGuard)
   @UsePipes(new ValidationPipe({ whitelist: true }))
-  viewDemographicData(@Request() req: any, @Body() body: { userID: number }) {
+  viewDemographicData(
+    @Request() req: any,
+    @Body() body: { patientID: number },
+  ) {
     return this.demographicsService.viewDemographicData(req, body);
   }
 }
