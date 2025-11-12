@@ -37,7 +37,6 @@ export class AuthController {
   @UseGuards(RefreshGuard)
   @UsePipes(new ValidationPipe({ whitelist: true }))
   refreshTokens(@Request() req) {
-    console.log(req);
     return this.authService.refreshTokens(
       req.user.userID,
       req.user.email,

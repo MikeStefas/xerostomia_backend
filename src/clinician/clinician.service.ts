@@ -1,44 +1,34 @@
 import { Injectable } from '@nestjs/common';
+import { DoesXExist } from 'src/functions/DoesXExist';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
 export class ClinicianService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private doesXExist: DoesXExist,
+  ) {}
 
   async pairClinician(req, clinicianID: number, patientID: number) {
     if (req.user.role !== 'ADMIN') {
       return { message: 'Unauthorized' };
     }
+
     try {
       // check if the clinician exists
-      const clinician = await this.prisma.user.findUnique({
-        where: { userID: clinicianID },
-      });
 
-      if (!clinician || clinician.role !== 'CLINICIAN') {
+      if ((await this.doesXExist.doesClinicianExist(clinicianID)) === false)
         return { message: 'Clinician does not exist' };
-      }
 
       // check if the patient exists
-      const patient = await this.prisma.user.findUnique({
-        where: { userID: patientID },
-      });
-
-      if (!patient || patient.role !== 'USER') {
+      if ((await this.doesXExist.doesPatientExist(patientID)) === false)
         return { message: 'Patient does not exist' };
-      }
 
       // check if the pair already exists
-      const existingPair = await this.prisma.pairs.findFirst({
-        where: {
-          clinicianID: clinicianID,
-          patientID: patientID,
-        },
-      });
-
-      if (existingPair) {
-        return { message: 'Already paired' };
-      }
+      if (
+        (await this.doesXExist.doesPairExist(clinicianID, patientID)) === true
+      )
+        return { message: 'Pair already exists' };
 
       // create the pair if it doesn't exist
       await this.prisma.pairs.create({

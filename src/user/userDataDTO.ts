@@ -18,7 +18,9 @@ export class UserDataDto {
 
   @IsString()
   @IsNotEmpty()
-  @IsIn(['ADMIN', 'USER', 'CLINICIAN'], { message: 'Role must be one of: admin, user, clinician' })
+  @IsIn(['ADMIN', 'PATIENT', 'CLINICIAN'], {
+    message: 'Role must be one of: admin, user, clinician',
+  })
   role: string;
 
   @IsString()

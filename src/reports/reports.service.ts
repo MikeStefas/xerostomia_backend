@@ -33,7 +33,7 @@ export class ReportsService {
       }
     }
 
-    if (role === 'USER') {
+    if (role === 'PATIENT') {
       let reports = await this.prisma.report.findMany({
         where: { userID: req.user.userID },
       });
@@ -43,7 +43,7 @@ export class ReportsService {
 
   async uploadReport(req, body) {
     const role = req.user.role;
-    if (role !== 'USER') {
+    if (role !== 'PATIENT') {
       return { message: 'You do not have permission to upload reports' };
     }
 

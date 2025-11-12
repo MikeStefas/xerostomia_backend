@@ -4,10 +4,11 @@ import { DemographicsService } from './demographics.service';
 import { PrismaModule } from 'src/prisma/prisma.module';
 import { JwtModule } from '@nestjs/jwt';
 import { PrismaController } from 'src/prisma/prisma.controller';
+import { DoesXExist } from 'src/functions/DoesXExist';
 
 @Module({
-    imports : [PrismaModule,JwtModule.register({})],
-    controllers: [DemographicsController, PrismaController],
-    providers: [DemographicsService]
+  imports: [PrismaModule, JwtModule.register({})],
+  controllers: [DemographicsController, PrismaController],
+  providers: [DemographicsService, DoesXExist],
 })
 export class DemographicsModule {}

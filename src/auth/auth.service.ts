@@ -4,6 +4,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import * as argon2 from 'argon2';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
+import { DoesXExist } from 'src/functions/DoesXExist';
 
 @Injectable()
 export class AuthService {
@@ -11,17 +12,16 @@ export class AuthService {
     private prisma: PrismaService,
     private jwt: JwtService,
     private config: ConfigService,
+    private doesXExist: DoesXExist,
   ) {}
 
   async createUser(body: SignUpDto) {
     const hashedPassword = await argon2.hash(body.password);
 
-    if (
-      (await this.prisma.user.findUnique({ where: { email: body.email } })) !=
-      null
-    ) {
+    if (await this.doesXExist.userAlreadyExists(body)) {
       return { message: 'User already exists' };
     }
+
     try {
       await this.prisma.user.create({
         data: {

@@ -1,9 +1,13 @@
 import { Injectable } from '@nestjs/common';
+import { DoesXExist } from 'src/functions/DoesXExist';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
 export class DemographicsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private doesXExist: DoesXExist,
+  ) {}
 
   async createDemographicData(req, body) {
     const role = req.user.role;
@@ -11,12 +15,8 @@ export class DemographicsService {
     try {
       if (role === 'ADMIN') {
         //check if user is a patient
-        const user = await this.prisma.user.findUnique({
-          where: { userID: body.userID },
-        });
-        if (!user || user.role !== 'USER') {
-          return { message: 'user is not a Clinician' };
-        }
+        if ((await this.doesXExist.doesPatientExist(body.userID)) === false)
+          return { message: 'User is not a patient' };
 
         try {
           await this.prisma.demographicData.create({
@@ -34,7 +34,7 @@ export class DemographicsService {
         }
       }
 
-      if (role === 'USER') {
+      if (role === 'PATIENT') {
         try {
           await this.prisma.demographicData.create({
             data: {
@@ -64,7 +64,6 @@ export class DemographicsService {
 
     try {
       if (role === 'ADMIN') {
-        console.log(body);
         try {
           await this.prisma.demographicData.update({
             where: { userID: body.userID },
@@ -81,7 +80,7 @@ export class DemographicsService {
         }
       }
 
-      if (role === 'USER') {
+      if (role === 'PATIENT') {
         try {
           await this.prisma.demographicData.update({
             where: { userID: req.user.userID },
@@ -125,7 +124,7 @@ export class DemographicsService {
             patientID: patientID,
           },
         });
-        console.log(pair);
+
         if (pair) {
           const demographicData = await this.prisma.demographicData.findUnique({
             where: { userID: body.userID },
@@ -140,7 +139,7 @@ export class DemographicsService {
         }
       }
 
-      if (role === 'USER') {
+      if (role === 'PATIENT') {
         const demographicData = await this.prisma.demographicData.findUnique({
           where: { userID: req.user.userID },
         });

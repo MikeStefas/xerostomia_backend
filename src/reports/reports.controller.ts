@@ -26,7 +26,6 @@ export class ReportsController {
   @UseGuards(JwtGuard)
   @UsePipes(new ValidationPipe({ whitelist: true }))
   uploadReport(@Request() req, @Body() body: reportDto) {
-    console.log(body);
     return this.userService.uploadReport(req, body);
   }
 }

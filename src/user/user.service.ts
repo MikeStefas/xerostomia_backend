@@ -63,11 +63,11 @@ export class UserService {
         if (chooseRole === 'ANY') {
           //return ANY user
           let res = await this.prisma.user.findMany({
-            where: { role: { in: ['USER', 'CLINICIAN'] } },
+            where: { role: { in: ['PATIENT', 'CLINICIAN'] } },
           });
           return res.map((user) => ({ ...user, password: '****' })); //hide password
         } else {
-          //return based on role. For example "USER"
+          //return based on role. For example "PATIENT"
           let res = await this.prisma.user.findMany({
             where: { role: chooseRole },
           });

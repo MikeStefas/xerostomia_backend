@@ -29,7 +29,10 @@ export class UserController {
   viewUsers(
     @Request() req,
     @Body()
-    body: { chooseRole: 'ANY' | 'USER' | 'CLINICIAN'; ofClinicianID: number },
+    body: {
+      chooseRole: 'ANY' | 'PATIENT' | 'CLINICIAN';
+      ofClinicianID: number;
+    },
   ) {
     return this.userService.viewUsers(req, body);
   }

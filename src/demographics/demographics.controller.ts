@@ -29,7 +29,6 @@ export class DemographicsController {
   @Patch('update-demographic-data')
   @UseGuards(JwtGuard)
   updateDemographics(@Request() req, @Body() body: DemographicsDto) {
-    console.log(body);
     return this.demographicsService.updateDemographicData(req, body);
   }
 
