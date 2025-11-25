@@ -22,12 +22,14 @@ export class DemographicsController {
 
   @Post('create-demographic-data')
   @UseGuards(JwtGuard)
+  @UsePipes(new ValidationPipe({ whitelist: true }))
   createDemographicData(@Request() req, @Body() body: DemographicsDto) {
     return this.demographicsService.createDemographicData(req, body);
   }
 
   @Patch('update-demographic-data')
   @UseGuards(JwtGuard)
+  @UsePipes(new ValidationPipe({ whitelist: true }))
   updateDemographics(@Request() req, @Body() body: DemographicsDto) {
     return this.demographicsService.updateDemographicData(req, body);
   }

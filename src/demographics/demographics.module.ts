@@ -4,7 +4,7 @@ import { DemographicsService } from './demographics.service';
 import { PrismaModule } from 'src/prisma/prisma.module';
 import { JwtModule } from '@nestjs/jwt';
 import { PrismaController } from 'src/prisma/prisma.controller';
-import { DoesXExist } from 'src/functions/DoesXExist';
+import { DoesXExist } from 'src/methods/DoesXExist';
 
 @Module({
   imports: [PrismaModule, JwtModule.register({})],

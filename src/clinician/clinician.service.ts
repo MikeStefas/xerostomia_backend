@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { DoesXExist } from 'src/functions/DoesXExist';
+import { DoesXExist } from 'src/methods/DoesXExist';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()

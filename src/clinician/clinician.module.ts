@@ -4,7 +4,7 @@ import { ClinicianController } from './clinician.controller';
 import { JwtModule } from '@nestjs/jwt';
 import { PrismaModule } from 'src/prisma/prisma.module';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { DoesXExist } from 'src/functions/DoesXExist';
+import { DoesXExist } from 'src/methods/DoesXExist';
 
 @Module({
   imports: [JwtModule.register({}), PrismaModule],

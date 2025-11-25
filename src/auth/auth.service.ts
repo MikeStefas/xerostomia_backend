@@ -4,7 +4,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import * as argon2 from 'argon2';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-import { DoesXExist } from 'src/functions/DoesXExist';
+import { DoesXExist } from 'src/methods/DoesXExist';
 
 @Injectable()
 export class AuthService {

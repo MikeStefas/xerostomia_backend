@@ -6,7 +6,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { JwtStrategy } from './../../strategies/jwt.strategy';
 import { RefreshStrategy } from './../../strategies/refresh.strategy';
 import { AdminJwtStrategy } from '../../strategies/admin.strategy';
-import { DoesXExist } from 'src/functions/DoesXExist';
+import { DoesXExist } from 'src/methods/DoesXExist';
 
 @Module({
   imports: [PrismaModule, JwtModule.register({})],
