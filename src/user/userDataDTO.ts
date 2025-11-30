@@ -1,4 +1,4 @@
-import { IsInt, IsNotEmpty, IsString, Length, IsIn } from 'class-validator';
+import { IsInt, IsNotEmpty, IsString, IsIn } from 'class-validator';
 
 export class UserDataDto {
   @IsInt()

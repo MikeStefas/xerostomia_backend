@@ -3,9 +3,9 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { PrismaModule } from 'src/prisma/prisma.module';
 import { JwtModule } from '@nestjs/jwt';
-import { JwtStrategy } from './../../strategies/jwt.strategy';
-import { RefreshStrategy } from './../../strategies/refresh.strategy';
-import { AdminJwtStrategy } from '../../strategies/admin.strategy';
+import { JwtStrategy } from '../strategies/jwt.strategy';
+import { RefreshStrategy } from '../strategies/refresh.strategy';
+import { AdminJwtStrategy } from '../strategies/admin.strategy';
 import { DoesXExist } from 'src/methods/DoesXExist';
 
 @Module({

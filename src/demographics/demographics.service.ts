@@ -61,7 +61,6 @@ export class DemographicsService {
 
   async updateDemographicData(req, body) {
     const role = req.user.role;
-
     try {
       if (role === 'ADMIN') {
         try {

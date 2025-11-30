@@ -56,7 +56,7 @@ model Pairs {
 }
 
 model DemographicData {
-  demgraphicDataId Int @id @default(autoincrement())
+  demographicDataId Int @id @default(autoincrement())
   userID Int @unique
   yearOfBirth Int
   gender String

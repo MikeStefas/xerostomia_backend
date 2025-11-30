@@ -1,22 +1,16 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
-import {
-  ExtractJwt,
-  Strategy,
-} from 'passport-jwt';
-import { PrismaService } from './../src/prisma/prisma.service';
+import { ExtractJwt, Strategy } from 'passport-jwt';
+import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
-export class RefreshStrategy extends PassportStrategy(
-  Strategy,
-  'jwt-refresh',
-) {
+export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
   constructor(
     config: ConfigService,
     private prisma: PrismaService,
   ) {
-    const jwtSecret = config.get<string>('JWT_SECRET_REFRESH');
+    const jwtSecret = config.get<string>('JWT_SECRET');
     if (!jwtSecret) {
       throw new Error('JWT_SECRET is not defined in configuration');
     }
@@ -27,10 +21,7 @@ export class RefreshStrategy extends PassportStrategy(
     });
   }
 
-  async validate(payload: {
-    sub: number;
-    email: string;
-  }) {
+  async validate(payload: { sub: number; email: string }) {
     const user = await this.prisma.user.findUnique({
       where: {
         userID: payload.sub,
@@ -40,7 +31,7 @@ export class RefreshStrategy extends PassportStrategy(
     if (!user) {
       throw new UnauthorizedException('User not found');
     }
-
+    user.password = '';
     return user;
   }
-  }
+}
