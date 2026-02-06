@@ -10,7 +10,15 @@ import { DemographicsModule } from './demographics/demographics.module';
 import { ReportsModule } from './reports/reports.module';
 
 @Module({
-  imports: [AuthModule, PrismaModule, ConfigModule.forRoot({isGlobal: true}), UserModule, ClinicianModule, DemographicsModule, ReportsModule],
+  imports: [
+    AuthModule,
+    PrismaModule,
+    ConfigModule.forRoot({ isGlobal: true }),
+    UserModule,
+    ClinicianModule,
+    DemographicsModule,
+    ReportsModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })

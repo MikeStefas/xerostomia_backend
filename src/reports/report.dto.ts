@@ -1,7 +1,6 @@
 import { IsString, IsInt } from 'class-validator';
 
 export class reportDto {
-
   @IsString()
   tongue: string;
 
@@ -10,7 +9,7 @@ export class reportDto {
 
   @IsString()
   teeth: string;
-  
+
   @IsInt()
   teethPercentage: number;
 

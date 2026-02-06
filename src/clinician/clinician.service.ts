@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { DoesXExist } from 'src/methods/DoesXExist';
 import { PrismaService } from 'src/prisma/prisma.service';
-
 @Injectable()
 export class ClinicianService {
   constructor(
@@ -9,11 +8,9 @@ export class ClinicianService {
     private doesXExist: DoesXExist,
   ) {}
 
-  async pairClinician(req, clinicianID: number, patientID: number) {
-    if (req.user.role !== 'ADMIN') {
-      return { message: 'Unauthorized' };
-    }
 
+
+  async pairClinician(clinicianID: number, patientID: number) {
     try {
       // check if the clinician exists
 
@@ -40,7 +37,7 @@ export class ClinicianService {
 
       return { message: 'Users are now paired' };
     } catch (error) {
-      return { message: '${error}' };
+      return { message: `${error}` };
     }
   }
 }

@@ -6,8 +6,8 @@ import { PrismaModule } from 'src/prisma/prisma.module';
 import { PrismaController } from 'src/prisma/prisma.controller';
 
 @Module({
-  imports : [PrismaModule,JwtModule.register({})],
-  providers: [ReportsService,],
-  controllers: [ReportsController, PrismaController]
+  imports: [PrismaModule, JwtModule.register({})],
+  providers: [ReportsService],
+  controllers: [ReportsController, PrismaController],
 })
 export class ReportsModule {}
