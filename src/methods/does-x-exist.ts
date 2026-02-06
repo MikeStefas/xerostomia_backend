@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { SignUpDto } from 'src/auth/authdto';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { SignUpDto } from 'src/auth/auth-dto';
+import { PrismaService } from 'src/prisma/prisma-service';
 
 @Injectable()
 export class DoesXExist {

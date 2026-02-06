@@ -5,10 +5,10 @@ import {
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
-import { DoesXExist } from 'src/methods/DoesXExist';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { DoesXExist } from 'src/methods/does-x-exist';
+import { PrismaService } from 'src/prisma/prisma-service';
 import { Prisma } from '@prisma/client';
-import { Role } from 'src/enums/role.enum';
+import { Role } from 'src/enums/role-enum';
 
 @Injectable()
 export class DemographicsService {

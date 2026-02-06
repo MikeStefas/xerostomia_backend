@@ -8,8 +8,8 @@ import {
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
-import { AuthService } from './auth.service';
-import { BasicUserInfo, SignInDto, SignUpDto } from './authdto';
+import { AuthService } from './auth-service';
+import { BasicUserInfo, SignInDto, SignUpDto } from './auth-dto';
 import { RefreshGuard } from '../../guard/refresh.guard';
 import { AdminJwtGuard } from 'guard/admin.guard';
 @Controller('auth')

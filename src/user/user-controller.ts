@@ -10,10 +10,10 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { JwtGuard } from 'guard';
-import { UserService } from './user.service';
-import { UserDataDto } from './userDataDTO';
-import { BasicUserInfo } from 'src/auth/authdto';
-import { Role } from 'src/enums/role.enum';
+import { UserService } from './user-service';
+import { UserDataDto } from './user-data-dto';
+import { BasicUserInfo } from 'src/auth/auth-dto';
+import { Role } from 'src/enums/role-enum';
 
 @Controller('user')
 export class UserController {

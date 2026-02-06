@@ -1,10 +1,10 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { SignInDto, SignUpDto } from './authdto';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { SignInDto, SignUpDto } from './auth-dto';
+import { PrismaService } from 'src/prisma/prisma-service';
 import * as argon2 from 'argon2';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-import { DoesXExist } from 'src/methods/DoesXExist';
+import { DoesXExist } from 'src/methods/does-x-exist';
 
 @Injectable()
 export class AuthService {

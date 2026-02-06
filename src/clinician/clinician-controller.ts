@@ -1,6 +1,6 @@
-import { ClinicianService } from './clinician.service';
+import { ClinicianService } from './clinician-service';
 import { AdminJwtGuard } from 'guard/admin.guard';
-import { PairClinicianDto } from './pairClinicianDTO';
+import { PairClinicianDto } from './pair-clinician-dto';
 import {
   Body,
   Controller,

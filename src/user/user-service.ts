@@ -5,10 +5,10 @@ import {
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { PrismaService } from 'src/prisma/prisma-service';
 import * as argon2 from 'argon2';
-import { UserDataDto } from './userDataDTO';
-import { Role } from 'src/enums/role.enum';
+import { UserDataDto } from './user-data-dto';
+import { Role } from 'src/enums/role-enum';
 
 @Injectable()
 export class UserService {

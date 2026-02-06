@@ -2,19 +2,17 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { PrismaService } from '../prisma/prisma-service';
 
 @Injectable()
-export class AdminJwtStrategy extends PassportStrategy(Strategy, 'admin-jwt') {
+export class RefreshStrategy extends PassportStrategy(Strategy, 'jwt-refresh') {
   constructor(
     config: ConfigService,
     private prisma: PrismaService,
   ) {
-    const jwtSecret = config.get<string>('JWT_SECRET');
+    const jwtSecret = config.get<string>('JWT_SECRET_REFRESH');
     if (!jwtSecret) {
-      throw new UnauthorizedException(
-        'JWT_SECRET is not defined in configuration',
-      );
+      throw new Error('JWT_SECRET is not defined in configuration');
     }
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
@@ -31,12 +29,9 @@ export class AdminJwtStrategy extends PassportStrategy(Strategy, 'admin-jwt') {
     });
 
     if (!user) {
-      throw new UnauthorizedException('User doesnt exist');
+      throw new UnauthorizedException('User not found');
     }
-    if (user.role !== 'ADMIN') {
-      throw new UnauthorizedException('Unauthorized: User is not an admin');
-    }
-    user.password = '';
+
     return user;
   }
 }

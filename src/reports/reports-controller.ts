@@ -7,11 +7,11 @@ import {
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
-import { ReportsService } from './reports.service';
+import { ReportsService } from './reports-service';
 import { JwtGuard } from 'guard';
-import { reportDto } from 'src/reports/report.dto';
-import { BasicUserInfo } from 'src/auth/authdto';
-import { Role } from 'src/enums/role.enum';
+import { reportDto } from 'src/reports/report-dto';
+import { BasicUserInfo } from 'src/auth/auth-dto';
+import { Role } from 'src/enums/role-enum';
 
 @Controller('reports')
 export class ReportsController {

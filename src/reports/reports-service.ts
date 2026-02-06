@@ -3,9 +3,9 @@ import {
   Injectable,
   InternalServerErrorException,
 } from '@nestjs/common';
-import { PrismaService } from 'src/prisma/prisma.service';
-import { reportDto } from './report.dto';
-import { Role } from 'src/enums/role.enum';
+import { PrismaService } from 'src/prisma/prisma-service';
+import { reportDto } from './report-dto';
+import { Role } from 'src/enums/role-enum';
 
 @Injectable()
 export class ReportsService {

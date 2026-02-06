@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { DoesXExist } from 'src/methods/DoesXExist';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { DoesXExist } from 'src/methods/does-x-exist';
+import { PrismaService } from 'src/prisma/prisma-service';
 @Injectable()
 export class ClinicianService {
   constructor(

@@ -9,11 +9,11 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { JwtGuard } from 'guard';
-import { PrismaService } from 'src/prisma/prisma.service';
-import { DemographicsService } from './demographics.service';
-import { DemographicsDto } from './demographicsDTO';
-import { BasicUserInfo } from 'src/auth/authdto';
-import { Role } from 'src/enums/role.enum';
+import { PrismaService } from 'src/prisma/prisma-service';
+import { DemographicsService } from './demographics-service';
+import { DemographicsDto } from './demographics-dto';
+import { BasicUserInfo } from 'src/auth/auth-dto';
+import { Role } from 'src/enums/role-enum';
 
 @Controller('demographics')
 export class DemographicsController {
