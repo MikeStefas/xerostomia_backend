@@ -8,8 +8,6 @@ export class ClinicianService {
     private doesXExist: DoesXExist,
   ) {}
 
-
-
   async pairClinician(clinicianID: number, patientID: number) {
     try {
       // check if the clinician exists

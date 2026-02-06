@@ -1,15 +1,17 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { reportDto } from './report.dto';
+import { BasicUserInfo } from 'src/auth/authdto';
 
 @Injectable()
 export class ReportsService {
   constructor(private prisma: PrismaService) {}
 
-  async viewUserReports(req, body) {
+  async viewUserReports(req: BasicUserInfo, body: { userID: number }) {
     const role = req.user.role;
 
     if (role === 'ADMIN') {
-      let reports = await this.prisma.report.findMany({
+      const reports = await this.prisma.report.findMany({
         where: { userID: body.userID },
       });
       return reports;
@@ -18,14 +20,14 @@ export class ReportsService {
     if (role === 'CLINICIAN') {
       const clinicianID = req.user.userID;
       const userID = body.userID;
-      let pair = await this.prisma.pairs.findFirst({
+      const pair = await this.prisma.pairs.findFirst({
         where: { clinicianID: clinicianID, patientID: userID },
       });
 
       if (pair === null) {
         return { message: 'Unauthorized to view reports of this userID' };
       } else {
-        let reports = await this.prisma.report.findMany({
+        const reports = await this.prisma.report.findMany({
           where: { userID: userID },
         });
         return reports;
@@ -33,14 +35,14 @@ export class ReportsService {
     }
 
     if (role === 'PATIENT') {
-      let reports = await this.prisma.report.findMany({
+      const reports = await this.prisma.report.findMany({
         where: { userID: req.user.userID },
       });
       return reports;
     }
   }
 
-  async uploadReport(req, body) {
+  async uploadReport(req: BasicUserInfo, body: reportDto) {
     const role = req.user.role;
     if (role !== 'PATIENT') {
       return { message: 'You do not have permission to upload reports' };

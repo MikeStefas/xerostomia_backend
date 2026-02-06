@@ -23,3 +23,11 @@ export class SignInDto {
   @Length(8, 128, { message: 'Password must be at least 8 characters long' })
   password: string;
 }
+
+export interface BasicUserInfo extends Request {
+  user: {
+    userID: number;
+    email: string;
+    role: string;
+  };
+}

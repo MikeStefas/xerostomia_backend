@@ -11,6 +11,7 @@ import {
 import { JwtGuard } from 'guard';
 import { UserService } from './user.service';
 import { UserDataDto } from './userDataDTO';
+import { BasicUserInfo } from 'src/auth/authdto';
 
 @Controller('user')
 export class UserController {
@@ -19,7 +20,7 @@ export class UserController {
   @Patch('update-user-data')
   @UseGuards(JwtGuard)
   @UsePipes(new ValidationPipe({ whitelist: true }))
-  updateUserData(@Request() req, @Body() body: UserDataDto) {
+  updateUserData(@Request() req: BasicUserInfo, @Body() body: UserDataDto) {
     return this.userService.updateUserData(req, body);
   }
 
@@ -27,7 +28,7 @@ export class UserController {
   @UseGuards(JwtGuard)
   @UsePipes(new ValidationPipe({ whitelist: true }))
   viewUsers(
-    @Request() req,
+    @Request() req: BasicUserInfo,
     @Body()
     body: {
       chooseRole: 'ANY' | 'PATIENT' | 'CLINICIAN';

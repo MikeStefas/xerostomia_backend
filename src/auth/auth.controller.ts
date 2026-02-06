@@ -9,10 +9,9 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { SignInDto, SignUpDto } from './authdto';
+import { BasicUserInfo, SignInDto, SignUpDto } from './authdto';
 import { RefreshGuard } from '../../guard/refresh.guard';
 import { AdminJwtGuard } from 'guard/admin.guard';
-
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {} //create an instance of AuthController
@@ -30,11 +29,10 @@ export class AuthController {
     return this.authService.signin(body);
   }
 
-  @UseGuards(RefreshGuard)
   @Get('refresh')
   @UseGuards(RefreshGuard)
   @UsePipes(new ValidationPipe({ whitelist: true }))
-  refreshTokens(@Request() req) {
+  refreshTokens(@Request() req: BasicUserInfo) {
     return this.authService.refreshTokens(
       req.user.userID,
       req.user.email,

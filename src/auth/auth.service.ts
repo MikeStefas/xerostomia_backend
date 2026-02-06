@@ -36,7 +36,8 @@ export class AuthService {
 
       return { message: 'successful' };
     } catch (error) {
-      return { message: error };
+      if (error instanceof Error) return { message: error.message };
+      return { message: `${error}` };
     }
   }
 
@@ -70,8 +71,8 @@ export class AuthService {
       email,
       role,
     };
-    const secret = this.config.get('JWT_SECRET');
-    const secretRefresh = this.config.get('JWT_SECRET_REFRESH');
+    const secret = this.config.get<string>('JWT_SECRET');
+    const secretRefresh = this.config.get<string>('JWT_SECRET_REFRESH');
 
     const accessToken = await this.jwt.signAsync(payload, {
       expiresIn: '1m',
@@ -99,7 +100,7 @@ export class AuthService {
       role,
     };
 
-    const secret = this.config.get('JWT_SECRET');
+    const secret = this.config.get<string>('JWT_SECRET');
     const accessToken = await this.jwt.signAsync(payload, {
       expiresIn: '15m',
       secret: secret,

@@ -1,12 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import * as argon2 from 'argon2';
+import { UserDataDto } from './userDataDTO';
+import { BasicUserInfo } from 'src/auth/authdto';
 
 @Injectable()
 export class UserService {
   constructor(private prisma: PrismaService) {}
 
-  async updateUserData(req, body) {
+  async updateUserData(req: BasicUserInfo, body: UserDataDto) {
     try {
       const role = req.user.role;
       if (role !== 'ADMIN') {
@@ -48,11 +50,18 @@ export class UserService {
       });
       return { message: 'Success' };
     } catch (error) {
-      return { message: '${error}' };
+      if (error instanceof Error) return { message: error.message };
+      return { message: `${error}` };
     }
   }
 
-  async viewUsers(req, body) {
+  async viewUsers(
+    req: BasicUserInfo,
+    body: {
+      chooseRole: 'ANY' | 'PATIENT' | 'CLINICIAN' | null;
+      ofClinicianID: number | null;
+    },
+  ) {
     const role = req.user.role;
     const chooseRole = body.chooseRole || null;
     const clinicianID = body.ofClinicianID || null;
@@ -62,13 +71,13 @@ export class UserService {
       if (role === 'ADMIN' && chooseRole !== null && clinicianID === null) {
         if (chooseRole === 'ANY') {
           //return ANY user
-          let res = await this.prisma.user.findMany({
+          const res = await this.prisma.user.findMany({
             where: { role: { in: ['PATIENT', 'CLINICIAN'] } },
           });
           return res.map((user) => ({ ...user, password: '****' })); //hide password
         } else {
           //return based on role. For example "PATIENT"
-          let res = await this.prisma.user.findMany({
+          const res = await this.prisma.user.findMany({
             where: { role: chooseRole },
           });
           return res.map((user) => ({ ...user, password: '****' }));
@@ -81,26 +90,26 @@ export class UserService {
         chooseRole === null &&
         clinicianID !== null
       ) {
-        let pairedUsersEntries = await this.prisma.pairs.findMany({
+        const pairedUsersEntries = await this.prisma.pairs.findMany({
           where: { clinicianID: clinicianID },
         });
-        let pairedUserIDList = pairedUsersEntries.map(
+        const pairedUserIDList = pairedUsersEntries.map(
           (entry) => entry.patientID,
         );
-        let res = await this.prisma.user.findMany({
+        const res = await this.prisma.user.findMany({
           where: { userID: { in: pairedUserIDList } },
         });
         return res.map((user) => ({ ...user, password: '****' }));
       }
       //View all users paired to the clinician, as the clinician himself
       else if (role === 'CLINICIAN') {
-        let pairedUsersEntries = await this.prisma.pairs.findMany({
+        const pairedUsersEntries = await this.prisma.pairs.findMany({
           where: { clinicianID: req.user.userID },
         });
-        let pairedUserIDList = pairedUsersEntries.map(
+        const pairedUserIDList = pairedUsersEntries.map(
           (entry) => entry.patientID,
         );
-        let res = await this.prisma.user.findMany({
+        const res = await this.prisma.user.findMany({
           where: { userID: { in: pairedUserIDList } },
         });
         return res.map((user) => ({ ...user, password: '****' }));
@@ -108,7 +117,8 @@ export class UserService {
         return { message: 'You do not have permission for this action' };
       }
     } catch (error) {
-      return { message: '${error}' };
+      if (error instanceof Error) return { message: error.message };
+      return { message: `${error}` };
     }
   }
 }

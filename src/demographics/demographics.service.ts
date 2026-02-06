@@ -1,6 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { DoesXExist } from 'src/methods/DoesXExist';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { Prisma } from '@prisma/client';
+import { BasicUserInfo } from 'src/auth/authdto';
 
 @Injectable()
 export class DemographicsService {
@@ -9,7 +11,10 @@ export class DemographicsService {
     private doesXExist: DoesXExist,
   ) {}
 
-  async createDemographicData(req, body) {
+  async createDemographicData(
+    req: BasicUserInfo,
+    body: { userID: number; yearOfBirth: number; gender: string },
+  ) {
     const role = req.user.role;
 
     try {
@@ -28,7 +33,10 @@ export class DemographicsService {
           });
           return { message: 'Success' };
         } catch (error) {
-          if (error.code === 'P2002') {
+          if (
+            error instanceof Prisma.PrismaClientKnownRequestError &&
+            error.code === 'P2002'
+          ) {
             return { message: 'Demographics already exist' };
           } else return { message: `${error}` };
         }
@@ -45,7 +53,10 @@ export class DemographicsService {
           });
           return { message: 'Success' };
         } catch (error) {
-          if (error.code === 'P2002') {
+          if (
+            error instanceof Prisma.PrismaClientKnownRequestError &&
+            error.code === 'P2002'
+          ) {
             return { message: 'Demographics already exist' };
           } else return { message: `${error}` };
         }
@@ -59,7 +70,10 @@ export class DemographicsService {
     }
   }
 
-  async updateDemographicData(req, body) {
+  async updateDemographicData(
+    req: BasicUserInfo,
+    body: { userID: number; yearOfBirth: number; gender: string },
+  ) {
     const role = req.user.role;
     try {
       if (role === 'ADMIN') {
@@ -73,7 +87,10 @@ export class DemographicsService {
           });
           return { message: 'Success' };
         } catch (error) {
-          if (error.code === 'P2005') {
+          if (
+            error instanceof Prisma.PrismaClientKnownRequestError &&
+            error.code === 'P2005'
+          ) {
             return { message: 'Demographics do not exist' };
           } else return { message: `${error}` };
         }
@@ -90,7 +107,10 @@ export class DemographicsService {
           });
           return { message: 'Success' };
         } catch (error) {
-          if (error.code === 'P2005') {
+          if (
+            error instanceof Prisma.PrismaClientKnownRequestError &&
+            error.code === 'P2005'
+          ) {
             return { message: 'Demographics do not exist' };
           } else return { message: `${error}` };
         }
@@ -104,7 +124,7 @@ export class DemographicsService {
     }
   }
 
-  async viewDemographicData(req, body) {
+  async viewDemographicData(req: BasicUserInfo, body: { userID: number }) {
     const role = req.user.role;
     try {
       if (role === 'ADMIN') {
@@ -149,6 +169,7 @@ export class DemographicsService {
         return { message: 'Unauthorized to view Demographics for this userID' };
       }
     } catch (error) {
+      if (error instanceof Error) return { message: error.message };
       return { message: `${error}` };
     }
   }
