@@ -13,6 +13,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { DemographicsService } from './demographics.service';
 import { DemographicsDto } from './demographicsDTO';
 import { BasicUserInfo } from 'src/auth/authdto';
+import { Role } from 'src/enums/role.enum';
 
 @Controller('demographics')
 export class DemographicsController {
@@ -28,7 +29,11 @@ export class DemographicsController {
     @Request() req: BasicUserInfo,
     @Body() body: DemographicsDto,
   ) {
-    return this.demographicsService.createDemographicData(req, body);
+    return this.demographicsService.createDemographicData(
+      req.user.userID,
+      req.user.role as Role,
+      body,
+    );
   }
 
   @Patch('update-demographic-data')
@@ -38,7 +43,11 @@ export class DemographicsController {
     @Request() req: BasicUserInfo,
     @Body() body: DemographicsDto,
   ) {
-    return this.demographicsService.updateDemographicData(req, body);
+    return this.demographicsService.updateDemographicData(
+      req.user.userID,
+      req.user.role as Role,
+      body,
+    );
   }
 
   @Post('view-demographic-data')
@@ -48,6 +57,10 @@ export class DemographicsController {
     @Request() req: BasicUserInfo,
     @Body() body: { userID: number },
   ) {
-    return this.demographicsService.viewDemographicData(req, body);
+    return this.demographicsService.viewDemographicData(
+      req.user.userID,
+      req.user.role as Role,
+      body,
+    );
   }
 }

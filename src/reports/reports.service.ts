@@ -1,66 +1,88 @@
-import { Injectable } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { reportDto } from './report.dto';
-import { BasicUserInfo } from 'src/auth/authdto';
+import { Role } from 'src/enums/role.enum';
 
 @Injectable()
 export class ReportsService {
   constructor(private prisma: PrismaService) {}
 
-  async viewUserReports(req: BasicUserInfo, body: { userID: number }) {
-    const role = req.user.role;
+  async viewUserReports(
+    requesterID: number,
+    requesterRole: Role,
+    body: { userID: number },
+  ) {
+    try {
+      switch (requesterRole) {
+        case Role.ADMIN: {
+          const reports = await this.prisma.report.findMany({
+            where: { userID: body.userID },
+          });
+          return reports;
+        }
 
-    if (role === 'ADMIN') {
-      const reports = await this.prisma.report.findMany({
-        where: { userID: body.userID },
-      });
-      return reports;
-    }
+        case Role.CLINICIAN: {
+          const clinicianID = requesterID;
+          const userID = body.userID;
+          const pair = await this.prisma.pairs.findFirst({
+            where: { clinicianID: clinicianID, patientID: userID },
+          });
 
-    if (role === 'CLINICIAN') {
-      const clinicianID = req.user.userID;
-      const userID = body.userID;
-      const pair = await this.prisma.pairs.findFirst({
-        where: { clinicianID: clinicianID, patientID: userID },
-      });
+          if (pair === null) {
+            throw new ForbiddenException(
+              'Unauthorized to view reports of this userID',
+            );
+          } else {
+            const reports = await this.prisma.report.findMany({
+              where: { userID: userID },
+            });
+            return reports;
+          }
+        }
 
-      if (pair === null) {
-        return { message: 'Unauthorized to view reports of this userID' };
-      } else {
-        const reports = await this.prisma.report.findMany({
-          where: { userID: userID },
-        });
-        return reports;
+        case Role.PATIENT: {
+          const reports = await this.prisma.report.findMany({
+            where: { userID: requesterID },
+          });
+          return reports;
+        }
       }
-    }
-
-    if (role === 'PATIENT') {
-      const reports = await this.prisma.report.findMany({
-        where: { userID: req.user.userID },
-      });
-      return reports;
+    } catch (error) {
+      if (error instanceof ForbiddenException) throw error;
+      throw new InternalServerErrorException(`${error}`);
     }
   }
-
-  async uploadReport(req: BasicUserInfo, body: reportDto) {
-    const role = req.user.role;
-    if (role !== 'PATIENT') {
-      return { message: 'You do not have permission to upload reports' };
+  async uploadReport(
+    requesterID: number,
+    requesterRole: Role,
+    body: reportDto,
+  ) {
+    if (requesterRole !== Role.PATIENT) {
+      throw new ForbiddenException(
+        'You do not have permission to upload reports',
+      );
     }
-
-    await this.prisma.report.create({
-      data: {
-        userID: req.user.userID,
-        tongue: body.tongue,
-        tonguePercentage: body.tonguePercentage,
-        teeth: body.teeth,
-        teethPercentage: body.teethPercentage,
-        saliva: body.saliva,
-        salivaPercentage: body.salivaPercentage,
-        pain: body.pain,
-        painPercentage: body.painPercentage,
-      },
-    });
-    return { message: 'Success' };
+    try {
+      await this.prisma.report.create({
+        data: {
+          userID: requesterID,
+          tongue: body.tongue,
+          tonguePercentage: body.tonguePercentage,
+          teeth: body.teeth,
+          teethPercentage: body.teethPercentage,
+          saliva: body.saliva,
+          salivaPercentage: body.salivaPercentage,
+          pain: body.pain,
+          painPercentage: body.painPercentage,
+        },
+      });
+      return { message: 'Success' };
+    } catch (error) {
+      throw new InternalServerErrorException(`${error}`);
+    }
   }
 }
