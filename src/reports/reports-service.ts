@@ -53,18 +53,31 @@ export class ReportsService {
     requesterRole: Role,
     body: reportDto,
   ) {
-    if (requesterRole !== Role.PATIENT) {
-      throw new ForbiddenException(
-        'You do not have permission to upload reports',
-      );
+    console.log(body);
+      console.log(requesterID);
+      console.log(requesterRole);
+    if (requesterRole === Role.PATIENT) {
+      return this.uploadPersonalReport(requesterID, body);
     }
 
+    if (requesterRole === Role.ADMIN) {
+      return //this.uploadReportForUser(requesterID, body);
+    }
+
+    throw new ForbiddenException('Unauthorized role');
+  }
+
+  private async uploadPersonalReport(requesterID: number, body: reportDto) {
     try {
-      await this.prisma.report.create({
-        data: {
+      if (body.userID === undefined || body.userID === null) delete body.userID;
+      
+      const data = {
           userID: requesterID,
           ...body,
-        },
+        }
+       console.log(data);
+      await this.prisma.report.create({
+        data  : data,
       });
       return { message: 'Success' };
     } catch (error) {
@@ -78,5 +91,10 @@ export class ReportsService {
       orderBy: { createdAt: 'desc' },
     });
   }
+
+  handleFileUpload(file: Express.Multer.File) {
+    return { message: 'File uploaded successfully', filePath: file.path };
+  }
+
 }
 

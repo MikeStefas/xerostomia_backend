@@ -3,7 +3,9 @@ import {
   Controller,
   Post,
   Request,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
@@ -12,6 +14,8 @@ import { JwtGuard } from 'guard';
 import { reportDto } from 'src/reports/report-dto';
 import { BasicUserInfo } from 'src/auth/auth-dto';
 import { Role } from 'src/enums/role-enum';
+import { FileInterceptor } from '@nestjs/platform-express';
+import multer from 'multer';
 
 @Controller('reports')
 export class ReportsController {
@@ -41,4 +45,11 @@ export class ReportsController {
       body,
     );
   }
+
+  @Post('upload')
+  @UseInterceptors(FileInterceptor('file'))
+  uploadFile(@UploadedFile() file: Express.Multer.File) {
+    return this.reportsService.handleFileUpload(file);
+  }
+
 }

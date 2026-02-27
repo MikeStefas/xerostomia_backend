@@ -14,52 +14,52 @@ datasource db {
 }
 
 model User {
-  userID        Int      @id @default(autoincrement()) @unique
-  email     String   @unique
-  firstName String   @default("-")
-  lastName String @default("-")
-  password  String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  role     String   @default("PATIENT")
-  institution String @default("-")
+  userID      Int      @id @default(autoincrement())
+  email       String   @unique
+  firstName   String   @default("-")
+  lastName    String   @default("-")
+  password    String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  role        String   @default("PATIENT")
+  institution String   @default("-")
 
   demographicData DemographicData?
-  reports Report[]
-  clinicianPairs  Pairs[] @relation("ClinicianPairs")
-  patientPairs       Pairs[] @relation("PatientPairs")
+  reports         Report[]         @relation("Reports")
+  clinicianPairs  Pairs[]          @relation("ClinicianPairs")
+  patientPairs    Pairs[]          @relation("PatientPairs")
 }
 
 model Report {
-  reportId        Int      @id @default(autoincrement())
-  userID    Int 
-  createdAt DateTime @default(now())
-  tongue  String
+  reportId         Int      @id @default(autoincrement())
+  userID           Int
+  createdAt        DateTime @default(now())
+  tongue           String
   tonguePercentage Int
-  teeth   String
-  teethPercentage Int
-  saliva  String
+  teeth            String
+  teethPercentage  Int
+  saliva           String
   salivaPercentage Int
-  pain  String @default("-")
-  painPercentage Int
+  pain             String   @default("-")
+  painPercentage   Int
 
-  user User @relation(fields: [userID], references: [userID])
+  user User @relation("Reports", fields: [userID], references: [userID])
 }
 
 model Pairs {
-  pairId          Int      @id @default(autoincrement())
-  clinicianID Int       
-  patientID      Int 
+  pairId      Int @id @default(autoincrement())
+  clinicianID Int
+  patientID   Int
 
-  clinician   User @relation("ClinicianPairs", fields: [clinicianID], references: [userID])
-  patient        User @relation("PatientPairs", fields: [patientID], references: [userID])
+  clinician User @relation("ClinicianPairs", fields: [clinicianID], references: [userID])
+  patient   User @relation("PatientPairs", fields: [patientID], references: [userID])
 }
 
 model DemographicData {
-  demographicDataId Int @id @default(autoincrement())
-  userID Int @unique
-  yearOfBirth Int
-  gender String
+  demographicDataId Int    @id @default(autoincrement())
+  userID            Int    @unique
+  yearOfBirth       Int
+  gender            String
 
   user User @relation(fields: [userID], references: [userID])
 }

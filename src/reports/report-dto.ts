@@ -1,4 +1,4 @@
-import { IsString, IsInt } from 'class-validator';
+import { IsString, IsInt, IsOptional } from 'class-validator';
 
 export class reportDto {
   @IsString()
@@ -24,4 +24,8 @@ export class reportDto {
 
   @IsInt()
   painPercentage: number;
+
+  @IsInt()
+  @IsOptional()
+  userID?: number;
 }
