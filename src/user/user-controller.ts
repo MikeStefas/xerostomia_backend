@@ -9,7 +9,7 @@ import {
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
-import { JwtGuard } from 'guard';
+import { AdminJwtGuard, JwtGuard } from 'guard';
 import { UserService } from './user-service';
 import { UserDataDto } from './user-data-dto';
 import { BasicUserInfo } from 'src/auth/auth-dto';
@@ -20,11 +20,10 @@ export class UserController {
   constructor(private userService: UserService) {}
 
   @Patch('update-user-data')
-  @UseGuards(JwtGuard)
+  @UseGuards(AdminJwtGuard)
   @UsePipes(new ValidationPipe({ whitelist: true }))
   updateUserData(@Request() req: BasicUserInfo, @Body() body: UserDataDto) {
     return this.userService.updateUserData(
-      req.user.userID,
       req.user.role as Role,
       body,
     );

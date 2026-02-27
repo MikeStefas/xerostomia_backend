@@ -9,13 +9,13 @@ import { PrismaService } from 'src/prisma/prisma-service';
 import * as argon2 from 'argon2';
 import { UserDataDto } from './user-data-dto';
 import { Role } from 'src/enums/role-enum';
+import { formatUserResponse } from 'src/methods/format-user';
 
 @Injectable()
 export class UserService {
   constructor(private prisma: PrismaService) {}
 
   async updateUserData(
-    requesterID: number,
     requesterRole: Role,
     body: UserDataDto,
   ) {
@@ -32,7 +32,7 @@ export class UserService {
         );
       }
 
-      //find if user exists
+      //find  user
       const user = await this.prisma.user.findUnique({
         where: { userID: body.userID },
       });
@@ -76,65 +76,59 @@ export class UserService {
     chooseRole: 'ANY' | 'PATIENT' | 'CLINICIAN' | null,
     ofClinicianID: number | null,
   ) {
-    if (typeof ofClinicianID === 'string') {
-      ofClinicianID = null;
+    if (typeof ofClinicianID === 'string'){
+      ofClinicianID = parseInt(ofClinicianID);
     }
     try {
-      switch (requesterRole) {
-        case Role.ADMIN: {
-          //view simple roles
-          if (chooseRole === 'ANY' && ofClinicianID === null) {
-            const res = await this.prisma.user.findMany({
-              where: { role: { in: [Role.PATIENT, Role.CLINICIAN] } },
-            });
-            return res.map((user) => ({ ...user, password: '****' }));
-          } else if (chooseRole !== null && ofClinicianID === null) {
-            const res = await this.prisma.user.findMany({
-              where: { role: chooseRole },
-            });
-            return res.map((user) => ({ ...user, password: '****' }));
-          }
-          //View users paired to a specific clinician as an admin
-          if (chooseRole === null && ofClinicianID !== null) {
-            const pairedUsersEntries = await this.prisma.pairs.findMany({
-              where: { clinicianID: ofClinicianID },
-            });
-            const pairedUserIDList = pairedUsersEntries.map(
-              (entry) => entry.patientID,
-            );
-            const res = await this.prisma.user.findMany({
-              where: { userID: { in: pairedUserIDList } },
-            });
-            return res.map((user) => ({ ...user, password: '****' }));
-          } else {
-            // Default case for admin (maybe return all or nothing)
-            // Just preserving logical flow, but could be a bad request
-            return [];
-          }
+      if (requesterRole === Role.ADMIN) {
+        if (ofClinicianID !== null && !isNaN(ofClinicianID)) {
+          return this.getPatientsForClinician(ofClinicianID);
         }
-
-        case Role.CLINICIAN: {
-          const pairedUsersEntries = await this.prisma.pairs.findMany({
-            where: { clinicianID: requesterID },
-          });
-          const pairedUserIDList = pairedUsersEntries.map(
-            (entry) => entry.patientID,
-          );
-          const res = await this.prisma.user.findMany({
-            where: { userID: { in: pairedUserIDList } },
-          });
-          return res.map((user) => ({ ...user, password: '****' }));
+        if (chooseRole !== null) {
+          return this.getAllUsersByRole(chooseRole);
         }
-
-        default: {
-          throw new ForbiddenException(
-            'You do not have permission for this action',
-          );
-        }
+        return [];
       }
+
+      if (requesterRole === Role.CLINICIAN) {
+        return this.getPatientsForClinician(requesterID);
+      }
+
+      throw new ForbiddenException(
+        'You do not have permission for this action',
+      );
     } catch (error) {
       if (error instanceof ForbiddenException) throw error;
       throw new InternalServerErrorException(`${error}`);
     }
+  }
+
+  private async getPatientsForClinician(clinicianID: number) {
+    const pairedUsersEntries = await this.prisma.pairs.findMany({
+      where: { clinicianID },
+    });
+
+    const pairedUserIDList = pairedUsersEntries.map((entry) => entry.patientID);
+
+    const users = await this.prisma.user.findMany({
+      where: { userID: { in: pairedUserIDList } },
+      include: { _count: { select: { reports: true } } },
+    });
+
+    return users.map((user) => formatUserResponse(user));
+  }
+
+  private async getAllUsersByRole(chooseRole: 'ANY' | 'PATIENT' | 'CLINICIAN') {
+    const roleFilter =
+      chooseRole === 'ANY'
+        ? { in: [Role.PATIENT, Role.CLINICIAN] }
+        : chooseRole;
+
+    const users = await this.prisma.user.findMany({
+      where: { role: roleFilter },
+      include: { _count: { select: { reports: true } } },
+    });
+
+    return users.map((user) => formatUserResponse(user));
   }
 }
