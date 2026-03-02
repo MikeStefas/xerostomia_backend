@@ -6,10 +6,33 @@ import {
 import { PrismaService } from 'src/prisma/prisma-service';
 import { reportDto } from './report-dto';
 import { Role } from 'src/enums/role-enum';
+import { ConfigService } from '@nestjs/config';
+import { createClient, WebDAVClient } from 'webdav';
+import {
+  uploadPersonalReport,
+  uploadReportForUser,
+  getReports,
+  uploadImages,
+} from './actions';
+import { DoesXExist } from 'src/methods/does-x-exist';
 
 @Injectable()
 export class ReportsService {
-  constructor(private prisma: PrismaService) {}
+  private webdavClient: WebDAVClient;
+
+  constructor(
+    private prisma: PrismaService,
+    private config: ConfigService,
+    private doesXExist: DoesXExist,
+  ) {
+    this.webdavClient = createClient(
+      this.config.get('NEXTCLOUD_URL')!,
+      {
+        username: this.config.get('NEXTCLOUD_USERNAME')!,
+        password: this.config.get('NEXTCLOUD_PASSWORD')!,
+      },
+    );
+  }
 
   async viewUserReports(
     requesterID: number,
@@ -20,17 +43,15 @@ export class ReportsService {
       const targetUserID = body.userID;
 
       if (requesterRole === Role.ADMIN) {
-        return this.getReports(targetUserID);
+        return getReports(this.prisma, targetUserID);
       }
 
       if (requesterRole === Role.PATIENT) {
-        return this.getReports(requesterID);
+        return getReports(this.prisma, requesterID);
       }
 
       if (requesterRole === Role.CLINICIAN) {
-        const isPaired = await this.prisma.pairs.findFirst({
-          where: { clinicianID: requesterID, patientID: targetUserID },
-        });
+        const isPaired = await  this.doesXExist.doesPairExist(requesterID, targetUserID);
 
         if (!isPaired) {
           throw new ForbiddenException(
@@ -38,7 +59,7 @@ export class ReportsService {
           );
         }
 
-        return this.getReports(targetUserID);
+        return getReports(this.prisma, targetUserID);
       }
 
       throw new ForbiddenException('Unauthorized role');
@@ -52,49 +73,65 @@ export class ReportsService {
     requesterID: number,
     requesterRole: Role,
     body: reportDto,
+    files?: Express.Multer.File[],
   ) {
-    console.log(body);
-      console.log(requesterID);
-      console.log(requesterRole);
+    let result: any;
+
     if (requesterRole === Role.PATIENT) {
-      return this.uploadPersonalReport(requesterID, body);
+      result = await uploadPersonalReport(this.prisma, requesterID, body);
+    } else if (requesterRole === Role.ADMIN) {
+      result = await uploadReportForUser(this.prisma, body);
+    } else {
+      throw new ForbiddenException('Unauthorized role');
     }
 
-    if (requesterRole === Role.ADMIN) {
-      return //this.uploadReportForUser(requesterID, body);
+    if (files && files.length > 0) {
+       const ownerID = requesterRole === Role.ADMIN ? body.userID : requesterID;
+       const uploadResult = await uploadImages(this.webdavClient, files, ownerID!, result.report.reportId);
+       return { ...result, uploadResult };
     }
 
-    throw new ForbiddenException('Unauthorized role');
+    return result;
   }
 
-  private async uploadPersonalReport(requesterID: number, body: reportDto) {
+
+
+  async getImages(requesterID: number, reportID: number, userID: number, requesterRole: Role) {
+
+    if (requesterRole === Role.PATIENT) {
+      throw new ForbiddenException('Unauthorized');
+    }
+
+    if (requesterRole === Role.CLINICIAN) {
+      const isPaired = await this.doesXExist.doesPairExist(requesterID, userID);
+
+      if (!isPaired) {
+        throw new ForbiddenException(
+          'Unauthorized to view reports of this userID',
+        );
+      }
+    }
     try {
-      if (body.userID === undefined || body.userID === null) delete body.userID;
-      
-      const data = {
-          userID: requesterID,
-          ...body,
-        }
-       console.log(data);
-      await this.prisma.report.create({
-        data  : data,
-      });
-      return { message: 'Success' };
+      const remoteDir = `/participant-${userID}/report-${reportID}`;
+
+      const exists = await this.webdavClient.exists(remoteDir);
+      if (!exists) {
+        return {message: 'No images found'};
+      }
+
+      const contents = await this.webdavClient.getDirectoryContents(remoteDir);
+      const files = contents;
+
+      const imageBuffers = await Promise.all(files.map(async (file: any) => {
+          return await this.webdavClient.getFileContents(file.filename);
+        })
+      );
+
+      return imageBuffers;
     } catch (error) {
-      throw new InternalServerErrorException(`${error}`);
+      throw new InternalServerErrorException(`Error fetching images: ${error}`);
     }
   }
 
-  private async getReports(userID: number) {
-    return this.prisma.report.findMany({
-      where: { userID },
-      orderBy: { createdAt: 'desc' },
-    });
-  }
-
-  handleFileUpload(file: Express.Multer.File) {
-    return { message: 'File uploaded successfully', filePath: file.path };
-  }
 
 }
-

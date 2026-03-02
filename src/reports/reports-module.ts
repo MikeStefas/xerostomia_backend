@@ -6,6 +6,7 @@ import { PrismaModule } from 'src/prisma/prisma-module';
 import { PrismaController } from 'src/prisma/prisma-controller';
 import { MulterModule } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
+import { DoesXExist } from 'src/methods/does-x-exist';
 
 @Module({
   imports: [PrismaModule, JwtModule.register({}),MulterModule.register({
@@ -17,7 +18,7 @@ import { diskStorage } from 'multer';
       },
     }),
   })],
-  providers: [ReportsService],
+  providers: [ReportsService,DoesXExist],
   controllers: [ReportsController, PrismaController],
 })
 export class ReportsModule {}
