@@ -79,12 +79,14 @@ export class ReportsService {
 
     if (requesterRole === Role.PATIENT) {
       result = await uploadPersonalReport(this.prisma, requesterID, body);
-    } else if (requesterRole === Role.ADMIN) {
+    } 
+    else if (requesterRole === Role.ADMIN) {
       result = await uploadReportForUser(this.prisma, body);
-    } else {
+    } 
+    else {
       throw new ForbiddenException('Unauthorized role');
     }
-
+    //handles file upload
     if (files && files.length > 0) {
        const ownerID = requesterRole === Role.ADMIN ? body.userID : requesterID;
        const uploadResult = await uploadImages(this.webdavClient, files, ownerID!, result.report.reportId);
@@ -120,10 +122,14 @@ export class ReportsService {
       }
 
       const contents = await this.webdavClient.getDirectoryContents(remoteDir);
-      const files = contents;
+      const files = Array.isArray(contents) ? contents : contents.data;
 
-      const imageBuffers = await Promise.all(files.map(async (file: any) => {
-          return await this.webdavClient.getFileContents(file.filename);
+      const imageBuffers = await Promise.all(
+        files.map(async (file) => {
+          const content = await this.webdavClient.getFileContents(file.filename);
+          return Array.isArray(content) || typeof content === 'string' || Buffer.isBuffer(content) 
+            ? content 
+            : (content as any).data;
         })
       );
 

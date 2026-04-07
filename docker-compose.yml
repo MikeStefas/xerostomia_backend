@@ -1,4 +1,18 @@
 services:
+  xerostomia_backend_api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: xerostomia_backend_api
+    ports:
+      - "5000:5000"
+    env_file:
+      - .env
+    environment:
+      - DATABASE_URL=postgres://postgresX:1234@postgres-xerostomia-db:5432/xerostomia_db?sslmode=disable
+      - NEXTCLOUD_URL=http://nextcloud:80/remote.php/dav/files/admin
+    networks:
+      - xerostomia
   xerostomia_db:
     image: postgres:13
     container_name: postgres-xerostomia-db
