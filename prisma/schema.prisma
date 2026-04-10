@@ -31,17 +31,11 @@ model User {
 }
 
 model Report {
-  reportId         Int      @id @default(autoincrement())
-  userID           Int
-  createdAt        DateTime @default(now())
-  tongue           String
-  tonguePercentage Int
-  teeth            String
-  teethPercentage  Int
-  saliva           String
-  salivaPercentage Int
-  pain             String   @default("-")
-  painPercentage   Int
+  reportId  Int      @id @default(autoincrement())
+  userID    Int
+  createdAt DateTime @default(now())
+  result    String
+  status    String
 
   user User @relation("Reports", fields: [userID], references: [userID])
 }

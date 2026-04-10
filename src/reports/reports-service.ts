@@ -75,25 +75,42 @@ export class ReportsService {
     body: reportDto,
     files?: Express.Multer.File[],
   ) {
-    let result: any;
+    let res: any;
+    body.result = "PENDING";
+    body.status = "PENDING";
 
     if (requesterRole === Role.PATIENT) {
-      result = await uploadPersonalReport(this.prisma, requesterID, body);
+      res = await uploadPersonalReport(this.prisma, requesterID, body);
     } 
     else if (requesterRole === Role.ADMIN) {
-      result = await uploadReportForUser(this.prisma, body);
+      res = await uploadReportForUser(this.prisma, body);
     } 
     else {
       throw new ForbiddenException('Unauthorized role');
     }
+
+    //send request to the fastapi to run the model
+    void fetch(`http://localhost:8000/token`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${this.config.get('FASTAPI_TOKEN')}`,
+      },
+      body: JSON.stringify({
+        reportID: res.report.reportId,
+        userID: requesterRole === Role.ADMIN ? body.userID : requesterID,
+      }),
+    });
+
     //handles file upload
     if (files && files.length > 0) {
        const ownerID = requesterRole === Role.ADMIN ? body.userID : requesterID;
-       const uploadResult = await uploadImages(this.webdavClient, files, ownerID!, result.report.reportId);
-       return { ...result, uploadResult };
+       const uploadResult = await uploadImages(this.webdavClient, files, ownerID!, res.report.reportId);
+       return { ...res, uploadResult };
     }
-
-    return result;
+    
+    
+    return res;
   }
 
 

@@ -12,12 +12,12 @@ export async function uploadPersonalReport(
   try {
     delete body.userID;
 
-    const data = {
-      userID: requesterID,
-      ...body,
-    };
     const report = await prisma.report.create({
-      data: data,
+      data: {
+        userID: requesterID,
+        status: body.status!,
+        result: body.result!,
+      },
     });
     return { message: 'Success', report };
   } catch (error) {
@@ -26,7 +26,7 @@ export async function uploadPersonalReport(
 }
 
 export async function uploadReportForUser(prisma: PrismaService, body: reportDto) {
-    
+    console.log(body.userID);
   try {
     if (!body.userID) {
       throw new ForbiddenException('UserID is required for admin upload');
@@ -35,7 +35,8 @@ export async function uploadReportForUser(prisma: PrismaService, body: reportDto
     const report = await prisma.report.create({
       data: {
         userID: body.userID,
-        ...body,
+        status: body.status!,
+        result: body.result!,
       },
     });
     return { message: 'Success', report };
