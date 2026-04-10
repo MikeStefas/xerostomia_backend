@@ -4,7 +4,7 @@ import { reportDto } from './report-dto';
 import { WebDAVClient } from 'webdav';
 import * as fs from 'fs';
 
-export async function uploadPersonalReport(
+export async function generatePersonalReport(
   prisma: PrismaService,
   requesterID: number,
   body: reportDto,
@@ -25,7 +25,7 @@ export async function uploadPersonalReport(
   }
 }
 
-export async function uploadReportForUser(prisma: PrismaService, body: reportDto) {
+export async function generateReportForUser(prisma: PrismaService, body: reportDto) {
     console.log(body.userID);
   try {
     if (!body.userID) {

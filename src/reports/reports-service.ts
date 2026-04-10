@@ -9,10 +9,10 @@ import { Role } from 'src/enums/role-enum';
 import { ConfigService } from '@nestjs/config';
 import { createClient, WebDAVClient } from 'webdav';
 import {
-  uploadPersonalReport,
-  uploadReportForUser,
   getReports,
   uploadImages,
+  generatePersonalReport,
+  generateReportForUser,
 } from './actions';
 import { DoesXExist } from 'src/methods/does-x-exist';
 
@@ -69,7 +69,7 @@ export class ReportsService {
     }
   }
 
-  async uploadReport(
+  async generateReport(
     requesterID: number,
     requesterRole: Role,
     body: reportDto,
@@ -80,10 +80,10 @@ export class ReportsService {
     body.status = "PENDING";
 
     if (requesterRole === Role.PATIENT) {
-      res = await uploadPersonalReport(this.prisma, requesterID, body);
+      res = await generatePersonalReport(this.prisma, requesterID, body);
     } 
     else if (requesterRole === Role.ADMIN) {
-      res = await uploadReportForUser(this.prisma, body);
+      res = await generateReportForUser(this.prisma, body);
     } 
     else {
       throw new ForbiddenException('Unauthorized role');

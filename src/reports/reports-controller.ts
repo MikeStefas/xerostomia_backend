@@ -36,16 +36,16 @@ export class ReportsController {
     );
   }
 
-  @Post('upload-report')
+  @Post('generate-report')
   @UseGuards(JwtGuard)
   @UseInterceptors(FilesInterceptor('files'))
   @UsePipes(new ValidationPipe({ whitelist: true }))
-  uploadReport(
+  generateReport(
     @Request() req: BasicUserInfo,
     @Body() body: reportDto,
     @UploadedFiles() files?: Express.Multer.File[],
   ) {
-    return this.reportsService.uploadReport(
+    return this.reportsService.generateReport(
       req.user.userID,
       req.user.role as Role,
       body,
