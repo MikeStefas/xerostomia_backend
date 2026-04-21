@@ -22,17 +22,17 @@ import {  FilesInterceptor } from '@nestjs/platform-express';
 export class ReportsController {
   constructor(private reportsService: ReportsService) {}
 
-  @Post('view-user-reports')
+  @Get('view-user-reports/:userID')
   @UseGuards(JwtGuard)
   @UsePipes(new ValidationPipe({ whitelist: true }))
   viewUserReports(
     @Request() req: BasicUserInfo,
-    @Body() body: { userID: number },
+    @Param('userID') userID: string,
   ) {
     return this.reportsService.viewUserReports(
       req.user.userID,
       req.user.role as Role,
-      body,
+      { userID: Number(userID) },
     );
   }
 

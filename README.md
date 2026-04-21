@@ -75,13 +75,13 @@ A NestJS-based backend for the Xerostomia project, using Prisma as the ORM with 
 | :-------- | :-------------------------------------- | :------------------------------------------------ | :------------ |
 | **POST**  | `/demographics/create-demographic-data` | Saves initial demographic information for a user. | Yes           |
 | **PATCH** | `/demographics/update-demographic-data` | Updates existing demographic records.             | Yes           |
-| **POST**  | `/demographics/view-demographic-data`   | Retrieves demographic data for a specific user.   | Yes           |
+| **GET**   | `/demographics/view-demographic-data/:userID` | Retrieves demographic data for a specific user.   | Yes           |
 
 ### Reports (`/reports`)
 
 | Method   | Endpoint                            | Description                                                 | Auth Required |
 | :------- | :---------------------------------- | :---------------------------------------------------------- | :------------ |
-| **POST** | `/reports/view-user-reports`        | Lists all reports associated with a specific user.          | Yes           |
+| **GET**   | `/reports/view-user-reports/:userID` | Lists all reports associated with a specific user.          | Yes           |
 | **POST** | `/reports/generate-report`          | Creates a new report and uploads associated files (images). | Yes           |
 | **GET**  | `/reports/images/:userID/:reportID` | Fetches the images assigned to a specific report.           | Yes           |
 

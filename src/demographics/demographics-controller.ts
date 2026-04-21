@@ -1,6 +1,8 @@
-import {
-  Body,
+import {        
+Body,
   Controller,
+  Get,
+  Param,
   Patch,
   Post,
   Request,
@@ -50,17 +52,17 @@ export class DemographicsController {
     );
   }
 
-  @Post('view-demographic-data')
+  @Get('view-demographic-data/:userID')
   @UseGuards(JwtGuard)
   @UsePipes(new ValidationPipe({ whitelist: true }))
   viewDemographicData(
     @Request() req: BasicUserInfo,
-    @Body() body: { userID: number },
+    @Param('userID') userID: string,
   ) {
     return this.demographicsService.viewDemographicData(
       req.user.userID,
       req.user.role as Role,
-      body,
+      { userID: Number(userID) },
     );
   }
 }
