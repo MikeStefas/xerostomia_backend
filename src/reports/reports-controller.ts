@@ -43,7 +43,7 @@ export class ReportsController {
   generateReport(
     @Request() req: BasicUserInfo,
     @Body() body: reportDto,
-    @UploadedFiles() files?: Express.Multer.File[],
+    @UploadedFiles() files: Express.Multer.File[],
   ) {
     return this.reportsService.generateReport(
       req.user.userID,

@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ForbiddenException,
   Injectable,
   InternalServerErrorException,
@@ -8,12 +9,8 @@ import { reportDto } from './report-dto';
 import { Role } from 'src/enums/role-enum';
 import { ConfigService } from '@nestjs/config';
 import { createClient, WebDAVClient } from 'webdav';
-import {
-  getReports,
-  uploadImages,
-  generatePersonalReport,
-  generateReportForUser,
-} from './actions';
+import microserviceLLMCall, { getReports, uploadImages } from './actions';
+
 import { DoesXExist } from 'src/methods/does-x-exist';
 
 @Injectable()
@@ -75,37 +72,33 @@ export class ReportsService {
     body: reportDto,
     files?: Express.Multer.File[],
   ) {
+    if (files?.length != 4) throw new BadRequestException("Please upload 4 images");
     let res: any;
-    body.result = "PENDING";
-    body.status = "PENDING";
 
-    if (requesterRole === Role.PATIENT) {
-      res = await generatePersonalReport(this.prisma, requesterID, body);
-    } 
-    else if (requesterRole === Role.ADMIN) {
-      res = await generateReportForUser(this.prisma, body);
-    } 
-    else {
+    if (requesterRole !== Role.PATIENT) {
       throw new ForbiddenException('Unauthorized role');
     }
-
+    
     //send request to the fastapi to run the model
-    void fetch(`http://localhost:8000/token`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${this.config.get('FASTAPI_TOKEN')}`,
-      },
-      body: JSON.stringify({
-        reportID: res.report.reportId,
-        userID: requesterRole === Role.ADMIN ? body.userID : requesterID,
-      }),
-    });
+    const llm_res = await microserviceLLMCall(this.config, files!);
 
-    //handles file upload
+    console.log(llm_res);
+
+    if (!llm_res) {
+      throw new InternalServerErrorException(`LLM Connection Error`);
+    }
+
+
+    //make the report
+    //const prisma_res: any = await this.prisma.report.create({
+    //  data: {
+    //    userID: requesterID,
+    //    ...body,
+    //  },
+    //});
+    //add file to the database     
     if (files && files.length > 0) {
-       const ownerID = requesterRole === Role.ADMIN ? body.userID : requesterID;
-       const uploadResult = await uploadImages(this.webdavClient, files, ownerID!, res.report.reportId);
+       const uploadResult = await uploadImages(this.webdavClient, files, requesterID, res.report.reportId);
        return { ...res, uploadResult };
     }
     

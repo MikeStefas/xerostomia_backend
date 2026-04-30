@@ -1,48 +1,31 @@
-import { ForbiddenException, InternalServerErrorException } from '@nestjs/common';
+import {  InternalServerErrorException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma-service';
-import { reportDto } from './report-dto';
 import { WebDAVClient } from 'webdav';
 import * as fs from 'fs';
+import { ConfigService } from "@nestjs/config";
 
-export async function generatePersonalReport(
-  prisma: PrismaService,
-  requesterID: number,
-  body: reportDto,
-) {
+export default async function microserviceLLMCall(config: ConfigService, files: Express.Multer.File[]) {
   try {
-    delete body.userID;
 
-    const report = await prisma.report.create({
-      data: {
-        userID: requesterID,
-        status: body.status!,
-        result: body.result!,
-      },
+    const formData = new FormData();
+    files.forEach((file: Express.Multer.File) => {
+      const imageBuffer = fs.readFileSync(file.path);
+      const uint8Array = new Uint8Array(imageBuffer);
+      const blob = new Blob([uint8Array], { type: file.mimetype });
+      formData.append('files', blob, file.originalname);
     });
-    return { message: 'Success', report };
-  } catch (error) {
-    throw new InternalServerErrorException(`${error}`);
-  }
-}
 
-export async function generateReportForUser(prisma: PrismaService, body: reportDto) {
-    console.log(body.userID);
-  try {
-    if (!body.userID) {
-      throw new ForbiddenException('UserID is required for admin upload');
-    }
-
-    const report = await prisma.report.create({
-      data: {
-        userID: body.userID,
-        status: body.status!,
-        result: body.result!,
+    const r = await fetch(`${config.get('FASTAPI_URL')}/diagnose`, { 
+      method: 'POST',
+      headers: {
       },
+      body: formData,
     });
-    return { message: 'Success', report };
+    
+    return await r.json();
   } catch (error) {
-    if (error instanceof ForbiddenException) throw error;
-    throw new InternalServerErrorException(`${error}`);
+    console.log(error);
+    return {message: 'Could not connect to the LLM'};
   }
 }
 
